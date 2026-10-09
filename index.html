@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KMU Microsoft-Berater</title>
+<meta name="description" content="Microsoft 365 für kleine Unternehmen bis 15 Mitarbeitende: Kunden beraten, Pakete vergleichen, Preis berechnen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --magenta:#e20074;
+  --magenta-dk:#b3005c;
+  --magenta-tint:#fde8f2;
+  --ink:#1b1b20;
+  --ink-2:#4b4b55;
+  --ink-3:#7a7a85;
+  --line:#e2e3e8;
+  --bg:#f3f4f6;
+  --paper:#ffffff;
+  --ok:#00875a;
+  --ok-tint:#e3f4ec;
+  --warn:#9a5b00;
+  --warn-tint:#fff3dc;
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+  --shadow:0 1px 2px rgba(27,27,32,.05), 0 12px 32px -20px rgba(27,27,32,.28);
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  font-family:'Inter',system-ui,sans-serif; color:var(--ink); background:var(--bg);
+  font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+button,input,select{ font:inherit; color:inherit; }
+button{ cursor:pointer; }
+:focus-visible{ outline:3px solid var(--magenta); outline-offset:2px; border-radius:6px; }
+h1,h2,h3{ font-family:'Inter Tight','Inter',sans-serif; letter-spacing:-.02em; margin:0; }
+.sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+
+/* ---------- Kopfzeile ---------- */
+.top{
+  position:sticky; top:0; z-index:50; background:rgba(255,255,255,.92);
+  backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.top-in{ max-width:1240px; margin:0 auto; padding:10px 20px; display:flex; align-items:center; gap:18px; }
+.brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+.brand img{ width:38px; height:38px; border-radius:8px; flex:none; }
+.brand h1{ font-size:17px; font-weight:700; white-space:nowrap; }
+.brand p{ margin:0; font-size:12.5px; color:var(--ink-3); white-space:nowrap; }
+.tabs{ display:flex; gap:4px; margin-left:auto; background:var(--bg); padding:4px; border-radius:12px; }
+.tabs button{
+  border:0; background:transparent; padding:8px 14px; border-radius:9px; font-weight:600; font-size:14.5px; color:var(--ink-2);
+}
+.tabs button[aria-selected="true"]{ background:var(--paper); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.top-actions{ display:flex; gap:8px; }
+.icon-btn{
+  border:1px solid var(--line); background:var(--paper); border-radius:10px; height:38px; padding:0 12px;
+  display:inline-flex; align-items:center; gap:7px; font-size:14px; font-weight:600; color:var(--ink-2);
+}
+.icon-btn svg{ width:17px; height:17px; }
+.icon-btn[aria-pressed="true"]{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+/* ---------- Ansichten ---------- */
+main{ max-width:1240px; margin:0 auto; padding:28px 20px 80px; }
+.view[hidden]{ display:none; }
+
+/* ---------- Beraten: Layout ---------- */
+.advise{ display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:28px; align-items:start; }
+.stage{
+  background:var(--paper); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:32px 34px 28px; min-height:520px;
+  display:flex; flex-direction:column;
+}
+.progress{ display:flex; gap:6px; margin-bottom:26px; }
+.progress span{ flex:1; height:5px; border-radius:3px; background:var(--line); transition:background .3s; }
+.progress span.done{ background:var(--magenta); }
+.progress span.now{ background:linear-gradient(90deg,var(--magenta) 50%,var(--line) 50%); }
+.q-step{ font-size:14px; color:var(--ink-3); margin-bottom:6px; }
+.q-title{ font-size:clamp(24px,3vw,32px); font-weight:700; line-height:1.15; max-width:22ch; }
+.q-help{ color:var(--ink-2); margin:10px 0 0; max-width:60ch; }
+.seller-note{
+  margin-top:14px; padding:10px 14px; border-radius:var(--r-sm); background:var(--warn-tint); color:#5c3a00;
+  font-size:14px; max-width:64ch; display:flex; gap:10px;
+}
+.seller-note b{ font-weight:600; }
+.seller-note svg{ width:18px; height:18px; flex:none; margin-top:2px; color:var(--warn); }
+body.customer .seller{ display:none !important; }
+
+.opts{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-top:24px; }
+.opt{
+  position:relative; text-align:left; background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r-md);
+  padding:16px 16px 15px; display:flex; flex-direction:column; gap:6px; min-height:112px;
+  transition:border-color .15s, background .15s;
+}
+.opt:hover{ border-color:#c9cad1; }
+.opt[aria-pressed="true"]{ border-color:var(--magenta); background:var(--magenta-tint); }
+.opt-ico{ width:34px; height:34px; border-radius:9px; background:var(--bg); display:grid; place-items:center; color:var(--ink-2); }
+.opt[aria-pressed="true"] .opt-ico{ background:var(--magenta); color:#fff; }
+.opt-ico svg{ width:19px; height:19px; }
+.opt-t{ font-weight:600; font-size:16px; line-height:1.3; margin-top:4px; }
+.opt-d{ font-size:13.5px; color:var(--ink-2); line-height:1.4; }
+.opt-check{
+  position:absolute; top:12px; right:12px; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line);
+  display:grid; place-items:center; color:transparent; background:#fff;
+}
+.opt[aria-pressed="true"] .opt-check{ background:var(--magenta); border-color:var(--magenta); color:#fff; }
+.opt-check svg{ width:13px; height:13px; }
+.multi-hint{ font-size:13.5px; color:var(--ink-3); margin-top:10px; }
+
+.sub-pick{ margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:14.5px; }
+.sub-pick span{ color:var(--ink-2); margin-right:4px; }
+.chip{
+  border:1.5px solid var(--line); background:#fff; border-radius:999px; padding:6px 13px; font-size:14px; font-weight:500;
+}
+.chip[aria-pressed="true"]{ border-color:var(--ink); background:var(--ink); color:#fff; }
+
+/* Mitarbeiterzahl */
+.count-wrap{ margin-top:30px; display:flex; flex-direction:column; gap:18px; max-width:560px; }
+.count-big{ display:flex; align-items:baseline; gap:12px; }
+.count-big output{ font-family:'Inter Tight','Inter',system-ui,sans-serif; font-weight:800; font-size:84px; line-height:1; letter-spacing:-.04em; color:var(--magenta); min-width:1.2ch; }
+.count-big span{ font-size:18px; color:var(--ink-2); }
+.stepper{ display:flex; align-items:center; gap:14px; }
+.stepper button{
+  width:48px; height:48px; border-radius:50%; border:1.5px solid var(--line); background:#fff; font-size:24px; line-height:1;
+  display:grid; place-items:center;
+}
+input[type=range]{ flex:1; accent-color:var(--magenta); height:28px; }
+.scale{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-3); padding:0 62px; }
+
+.q-nav{ margin-top:auto; padding-top:28px; display:flex; gap:10px; align-items:center; }
+.btn{
+  border:0; border-radius:12px; padding:13px 22px; font-weight:600; font-size:15.5px;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-primary{ background:var(--magenta); color:#fff; }
+.btn-primary:hover{ background:var(--magenta-dk); }
+.btn-primary:disabled{ background:#e7c3d6; cursor:not-allowed; }
+.btn-ghost{ background:transparent; color:var(--ink-2); padding-left:6px; }
+.btn-ghost:hover{ color:var(--ink); }
+.btn-outline{ background:#fff; border:1.5px solid var(--line); color:var(--ink); }
+.q-nav .skip{ margin-left:auto; font-size:14px; color:var(--ink-3); background:none; border:0; text-decoration:underline; text-underline-offset:3px; }
+
+/* ---------- Kassenbon ---------- */
+.receipt-col{ position:sticky; top:84px; }
+.receipt{
+  position:relative; background:#fff; padding:26px 24px 30px; font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:13.5px; color:#2b2b30; box-shadow:0 18px 40px -24px rgba(27,27,32,.45), 0 2px 4px rgba(27,27,32,.06);
+  border-radius:4px 4px 0 0;
+}
+.receipt::after{
+  content:""; position:absolute; left:0; right:0; bottom:-12px; height:12px;
+  background:
+    linear-gradient(-45deg,transparent 8px,#fff 0) 0 0/16px 12px repeat-x,
+    linear-gradient(45deg,transparent 8px,#fff 0) 0 0/16px 12px repeat-x;
+  filter:drop-shadow(0 4px 3px rgba(27,27,32,.08));
+}
+.rc-head{ text-align:center; padding-bottom:14px; border-bottom:1.5px dashed #c8c9cf; }
+.rc-head img{ width:30px; height:30px; border-radius:6px; display:block; margin:0 auto 8px; }
+.rc-head strong{ display:block; font-weight:600; font-size:14px; }
+.rc-head small{ color:#7a7a85; font-size:12px; }
+.rc-cust{ margin-top:8px; }
+.rc-cust input{
+  width:100%; text-align:center; border:0; border-bottom:1px solid transparent; font-family:inherit; font-size:13px; padding:4px; background:transparent;
+}
+.rc-cust input:hover,.rc-cust input:focus{ border-bottom-color:#c8c9cf; outline:none; }
+.rc-lines{ list-style:none; margin:0; padding:12px 0 0; }
+.rc-lines li{ display:flex; gap:10px; padding:5px 0; align-items:baseline; }
+.rc-lines li.fresh{ animation:print .5s steps(6,end) both; }
+@keyframes print{ from{ clip-path:inset(0 100% 0 0); } to{ clip-path:inset(0 0 0 0); } }
+.rc-k{ color:#7a7a85; flex:none; width:13.5ch; }
+.rc-v{ flex:1; min-width:0; }
+.rc-empty{ color:#9b9ba5; padding:16px 0 4px; text-align:center; }
+.rc-sum{ margin-top:12px; padding-top:12px; border-top:1.5px dashed #c8c9cf; }
+.rc-row{ display:flex; justify-content:space-between; gap:12px; padding:3px 0; }
+.rc-row.total{ font-size:20px; font-weight:600; padding-top:8px; color:var(--ink); }
+.rc-row.total span:last-child{ color:var(--magenta); }
+.rc-foot{ margin-top:12px; font-size:11.5px; color:#8a8a94; text-align:center; line-height:1.45; }
+.rc-plan{ margin-top:12px; padding:10px 12px; background:var(--magenta-tint); color:var(--magenta-dk); font-weight:600; text-align:center; border-radius:4px; }
+.receipt-actions{ margin-top:26px; display:flex; flex-direction:column; gap:8px; }
+
+/* ---------- Ergebnis ---------- */
+.result-head{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:16px; justify-content:space-between; }
+.result-kicker{ font-size:15px; color:var(--ink-2); }
+.result-name{ font-size:clamp(30px,4vw,46px); font-weight:800; line-height:1.05; letter-spacing:-.03em; margin-top:4px; }
+.result-claim{ font-size:18px; color:var(--magenta-dk); font-weight:600; margin-top:6px; }
+.plan-switch{ display:flex; gap:4px; background:var(--bg); padding:4px; border-radius:12px; }
+.plan-switch button{ border:0; background:transparent; padding:8px 14px; border-radius:9px; font-weight:600; font-size:14px; color:var(--ink-2); }
+.plan-switch button[aria-pressed="true"]{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.plan-switch button .rec{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--magenta); margin-left:6px; vertical-align:2px; }
+
+.say{
+  margin-top:26px; padding:22px 24px; border-radius:var(--r-md); background:var(--bg); border-left:4px solid var(--magenta);
+}
+.say h3{ font-size:16px; font-weight:700; margin-bottom:10px; }
+.say ul{ margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; }
+.say li{ max-width:68ch; }
+
+.section-h{ font-size:19px; font-weight:700; margin:32px 0 12px; }
+.config{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; }
+.cfg{
+  border:1.5px solid var(--line); border-radius:var(--r-md); padding:14px 16px; display:flex; flex-direction:column; gap:10px;
+}
+.cfg.on{ border-color:var(--ink); }
+.cfg-top{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.cfg-t{ font-weight:600; }
+.cfg-d{ font-size:13.5px; color:var(--ink-2); line-height:1.4; }
+.cfg-p{ font-size:13px; color:var(--ink-3); }
+.mini-step{ display:flex; align-items:center; gap:8px; }
+.mini-step button{ width:34px; height:34px; border-radius:50%; border:1.5px solid var(--line); background:#fff; font-size:18px; display:grid; place-items:center; }
+.mini-step output{ min-width:2.5ch; text-align:center; font-weight:700; font-size:17px; }
+.mini-step small{ color:var(--ink-3); font-size:13px; }
+.switch{ position:relative; width:44px; height:26px; flex:none; }
+.switch input{ position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
+.switch span{ position:absolute; inset:0; border-radius:999px; background:#d4d5db; transition:background .2s; pointer-events:none; }
+.switch span::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 1px 2px rgba(0,0,0,.2); }
+.switch input:checked + span{ background:var(--magenta); }
+.switch input:checked + span::after{ transform:translateX(18px); }
+.switch input:focus-visible + span{ outline:3px solid var(--magenta); outline-offset:2px; }
+
+.billing{ display:flex; flex-wrap:wrap; gap:8px; }
+.alts{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.alt{ border:1.5px solid var(--line); border-radius:var(--r-md); padding:16px; display:flex; flex-direction:column; gap:8px; text-align:left; background:#fff; }
+.alt:hover{ border-color:var(--ink); }
+.alt-k{ font-size:13.5px; color:var(--ink-3); }
+.alt-n{ font-family:'Inter Tight','Inter',system-ui,sans-serif; font-weight:700; font-size:19px; }
+.alt-d{ font-size:14px; color:var(--ink-2); }
+.alt-p{ font-weight:600; }
+.alt-p.up{ color:var(--magenta-dk); }
+.alt-p.down{ color:var(--ok); }
+
+.hints{ display:flex; flex-direction:column; gap:8px; }
+.hint{ padding:12px 14px; border-radius:var(--r-sm); background:var(--warn-tint); color:#5c3a00; font-size:14.5px; display:flex; gap:10px; }
+.hint svg{ width:18px; height:18px; flex:none; color:var(--warn); margin-top:2px; }
+.hint.info{ background:#eef1f8; color:#26324f; }
+.hint.info svg{ color:#3d5a99; }
+.delta{ margin-top:14px; padding:14px 16px; border-radius:var(--r-sm); border:1.5px solid var(--line); font-size:15px; }
+.delta b{ font-weight:700; }
+
+.includes{ columns:2 260px; column-gap:28px; margin:0; padding:0; list-style:none; }
+.includes li{ break-inside:avoid; padding:6px 0 6px 28px; position:relative; font-size:15px; }
+.includes li::before{
+  content:""; position:absolute; left:0; top:9px; width:18px; height:18px; border-radius:50%; background:var(--ok-tint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300875a' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/12px no-repeat;
+}
+.includes li.addon::before{ background:var(--magenta-tint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b3005c' stroke-width='3.2' stroke-linecap='round'%3E%3Cpath d='M12 6v12M6 12h12'/%3E%3C/svg%3E") center/12px no-repeat; }
+
+/* ---------- Vergleich ---------- */
+.page-h{ display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:22px; }
+.page-h h2{ font-size:clamp(26px,3.4vw,36px); font-weight:800; letter-spacing:-.03em; }
+.page-h p{ margin:6px 0 0; color:var(--ink-2); max-width:62ch; }
+.toggle-row{ display:flex; align-items:center; gap:10px; font-size:14.5px; font-weight:500; color:var(--ink-2); }
+.cmp{ background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); overflow:hidden; }
+.cmp-scroll{ overflow-x:auto; }
+.cmp table{ width:100%; border-collapse:collapse; min-width:720px; }
+.cmp th,.cmp td{ padding:12px 16px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+.cmp thead th{ position:sticky; top:0; background:#fff; z-index:1; vertical-align:top; padding-top:40px; }
+.ph-claim{ min-height:2.8em; }
+.cmp thead th.plan-col{ width:17%; text-align:center; position:relative; }
+.cmp thead th.plan-col.hl{ box-shadow:inset 0 3px 0 var(--magenta); }
+.ph-name{ font-family:'Inter Tight','Inter',system-ui,sans-serif; font-weight:700; font-size:19px; }
+.ph-claim{ font-size:13px; color:var(--ink-2); font-weight:400; margin-top:2px; }
+.ph-price{ margin-top:10px; font-weight:700; font-size:22px; font-family:'Inter Tight','Inter',system-ui,sans-serif; }
+.ph-price small{ font-size:12.5px; font-weight:500; color:var(--ink-3); font-family:'Inter'; display:block; }
+.cmp thead th.hl{ background:var(--magenta-tint); }
+.cmp td.hl{ background:#fff7fb; }
+.ph-tag{ position:absolute; top:10px; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:12px; font-weight:600; color:#fff; background:var(--magenta); padding:3px 9px; border-radius:999px; }
+.grp-row td{ background:var(--bg); font-weight:700; font-family:'Inter Tight','Inter',system-ui,sans-serif; font-size:15.5px; padding-top:14px; }
+.f-t{ font-weight:600; }
+.f-ex{ font-size:13.5px; color:var(--ink-2); margin-top:2px; max-width:56ch; }
+.f-tech{ display:none; font-size:12.5px; color:var(--magenta-dk); margin-top:4px; }
+body.tech .f-tech{ display:block; }
+.cell{ text-align:center !important; vertical-align:middle !important; }
+.yes,.no,.add{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%; }
+.yes{ background:var(--ok-tint); color:var(--ok); }
+.no{ color:#b9bac2; }
+.add{ width:auto; height:auto; border-radius:999px; padding:3px 10px; font-size:12.5px; font-weight:600; background:var(--magenta-tint); color:var(--magenta-dk); }
+.yes svg,.no svg{ width:15px; height:15px; }
+
+details.expert{ margin-top:22px; background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); }
+details.expert summary{ padding:18px 22px; font-weight:700; font-family:'Inter Tight','Inter',system-ui,sans-serif; font-size:17px; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+details.expert summary::-webkit-details-marker{ display:none; }
+details.expert summary span{ font-family:'Inter'; font-weight:500; font-size:14px; color:var(--ink-3); }
+.ex-body{ padding:0 22px 22px; }
+.ex-cat{ margin-top:16px; }
+.ex-cat h4{ margin:0 0 6px; font-size:15px; }
+.ex-row{ display:grid; grid-template-columns:minmax(0,1fr) 70px 70px 70px; gap:6px; padding:8px 0; border-bottom:1px solid var(--line); align-items:start; }
+.ex-row.head{ font-size:13px; color:var(--ink-3); font-weight:600; border-bottom:1.5px solid var(--ink); }
+.ex-row .c{ text-align:center; }
+.ex-n{ font-weight:600; font-size:14.5px; }
+.ex-n a{ color:var(--magenta-dk); font-size:12.5px; font-weight:500; margin-left:6px; }
+.ex-d{ font-size:13px; color:var(--ink-2); margin-top:2px; }
+
+/* ---------- Spickzettel ---------- */
+.cheat{ display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:24px; align-items:start; }
+.card{ background:#fff; border-radius:var(--r-lg); box-shadow:var(--shadow); padding:24px 26px; }
+.card h3{ font-size:20px; font-weight:700; margin-bottom:6px; }
+.card > p{ margin:0 0 14px; color:var(--ink-2); font-size:14.5px; }
+.obj{ border-top:1px solid var(--line); }
+.obj summary{ list-style:none; cursor:pointer; padding:14px 0; font-weight:600; font-size:16px; display:flex; gap:12px; align-items:flex-start; }
+.obj summary::-webkit-details-marker{ display:none; }
+.obj summary::before{ content:"„"; font-family:'Inter Tight','Inter',system-ui,sans-serif; font-weight:800; color:var(--magenta); font-size:26px; line-height:.8; }
+.obj summary::after{ content:"+"; margin-left:auto; color:var(--ink-3); font-weight:500; font-size:20px; line-height:1; }
+.obj[open] summary::after{ content:"–"; }
+.obj-a{ padding:0 0 16px 26px; color:var(--ink-2); font-size:15px; }
+.obj-a p{ margin:0 0 8px; max-width:64ch; }
+.obj-a .try{ color:var(--ink); background:var(--bg); border-radius:var(--r-sm); padding:10px 12px; font-style:italic; }
+.gloss dt{ font-weight:700; margin-top:14px; }
+.gloss dd{ margin:3px 0 0; color:var(--ink-2); font-size:14.5px; }
+.facts{ margin:0; padding:0; list-style:none; }
+.facts li{ padding:9px 0; border-bottom:1px solid var(--line); font-size:14.5px; display:flex; gap:12px; }
+.facts li b{ flex:none; width:8.5em; }
+
+/* ---------- Dialog ---------- */
+dialog{ border:0; border-radius:var(--r-lg); padding:0; width:min(560px,calc(100% - 32px)); box-shadow:0 30px 80px -20px rgba(0,0,0,.4); }
+dialog::backdrop{ background:rgba(27,27,32,.45); }
+.dlg-h{ padding:22px 24px 6px; }
+.dlg-h h3{ font-size:20px; }
+.dlg-h p{ margin:6px 0 0; color:var(--ink-2); font-size:14.5px; }
+.dlg-b{ padding:10px 24px; max-height:60vh; overflow:auto; }
+.price-row{ display:grid; grid-template-columns:1fr 120px; gap:12px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); }
+.price-row label{ font-size:14.5px; }
+.price-row label small{ display:block; color:var(--ink-3); font-size:12.5px; }
+.price-row input{ border:1.5px solid var(--line); border-radius:8px; padding:7px 10px; text-align:right; width:100%; }
+.price-row.changed input{ border-color:var(--magenta); background:var(--magenta-tint); }
+.dlg-f{ padding:16px 24px 22px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
+
+.toast{
+  position:fixed; left:50%; bottom:24px; transform:translate(-50%,120px); background:var(--ink); color:#fff; padding:12px 18px;
+  border-radius:12px; font-size:14.5px; transition:transform .3s, opacity .3s; z-index:100; opacity:0; visibility:hidden;
+}
+.toast{ display:flex; align-items:center; gap:14px; }
+.toast button{ border:0; background:transparent; color:#ff7cbd; font-weight:700; font-size:14.5px; padding:2px 0; text-decoration:underline; text-underline-offset:3px; }
+.toast.show{ transform:translate(-50%,0); opacity:1; visibility:visible; }
+
+.site-foot{ max-width:1240px; margin:0 auto; padding:0 20px 40px; font-size:12.5px; color:var(--ink-3); }
+
+/* ---------- Druck ---------- */
+#print-sheet{ display:none; }
+@media print{
+  @page{ size:A4; margin:16mm 16mm 18mm; }
+  body{ background:#fff; }
+  body > *:not(#print-sheet){ display:none !important; }
+  #print-sheet{ display:block; font-size:9.6pt; line-height:1.4; color:#1b1b20; }
+  .ps-head{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--magenta); padding-bottom:10px; }
+  .ps-head img{ width:34px; height:34px; }
+  .ps-head h1{ font-size:18pt; margin:0; }
+  .ps-head p{ margin:2px 0 0; color:#5a5a64; }
+  .ps-meta{ text-align:right; color:#5a5a64; font-size:9.5pt; }
+  .ps-plan{ margin:14px 0 4px; font-family:'Inter Tight','Inter',system-ui,sans-serif; font-size:20pt; font-weight:800; }
+  .ps-claim{ color:var(--magenta-dk); font-weight:600; margin-bottom:12px; }
+  #print-sheet h2{ font-size:11.5pt; margin:13px 0 4px; }
+  #print-sheet ul{ margin:0; padding-left:18px; }
+  #print-sheet li{ margin:1px 0; }
+  .ps-table{ width:100%; border-collapse:collapse; margin-top:4px; }
+  .ps-table td,.ps-table th{ padding:4px 4px; border-bottom:1px solid #ddd; text-align:left; }
+  .ps-table td:last-child,.ps-table th:last-child{ text-align:right; white-space:nowrap; }
+  .ps-table tr.sum td{ font-weight:700; border-top:2px solid #1b1b20; border-bottom:0; font-size:12pt; }
+  .ps-cols{ columns:2; column-gap:20px; }
+  .ps-note{ margin-top:22px; font-size:8.5pt; color:#7a7a85; border-top:1px solid #ddd; padding-top:8px; }
+}
+
+/* ---------- Responsiv ---------- */
+@media (max-width:1020px){
+  .advise{ grid-template-columns:1fr; }
+  .receipt-col{ position:static; max-width:460px; width:100%; margin:0 auto; }
+  .cheat{ grid-template-columns:1fr; }
+}
+@media (max-width:760px){
+  .top-in{ flex-wrap:wrap; gap:10px; padding:10px 16px; }
+  .tabs{ order:3; width:100%; margin-left:0; }
+  .tabs button{ flex:1; padding:8px 6px; }
+  .top-actions{ margin-left:auto; }
+  .icon-btn .lbl{ display:none; }
+  .brand p{ display:none; }
+  main{ padding:18px 16px 60px; }
+  .stage{ padding:22px 18px 20px; min-height:0; }
+  .opts{ grid-template-columns:1fr; }
+  .opt{ min-height:0; }
+  .count-big output{ font-size:68px; }
+  .scale{ padding:0 0; }
+  .alts{ grid-template-columns:1fr; }
+  .card{ padding:20px 18px; }
+  .ex-row{ grid-template-columns:minmax(0,1fr) 44px 44px 44px; }
+  .facts li{ flex-direction:column; gap:2px; }
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAIAAABt+uBvAAAGc0lEQVR42u2cXWhcRRTH/+fM3Lu7Sb8Sa0ubUhRj/XjzG6lgQR+sYKGKgijoU98F0VdfBd+lJVIF9UUU9UWxCBZsi6a2ImhNaW2pTdIkJlnTTbP33pk5PuwmLXaza9m5m62ZeZ6de/Z3z9ecOXPpgn4LxiGMhkMzBwjNRwAUAAVAAVAAFAAFQAFQABRGABQABUABUAAUAP3Phva2ElF3/TORrgIkIrar+BAYoC4AxCQuje/e0v/BsxAvIrX/sgDCzCufpb+PE8dwsuIaJLS2ED880F0atLYASNeYmBVYaa1BIiICtziNiKiV8xIRWXQoAjCIqNVPAAJsV/kgAhQ1A+QEItB84ybYCIZ1IMJyi9XE8GTsOn+PIHCAIoDcXJKdHEtPjGUj025i3s3NR3ds6juwpzFZAQiz+77Mzk7yul7e3BvddUt8/9bovq28rlBXW849euYMyAmYoJAOj1YODC98ddqOlgWm5t4FaXG82nyB5PsL1VN/EGLAASBoNbChtHvHmn0PxQ8NXH3ETQnIOih2U1dm3/x6/v0TIikhJo6JCzXTEadoTdzCwNbErErEhbobcmJH5y4PHa28d7z31fv73n6Kb+2pPehmA2QFitOfxv96/qPs3ARTL+kIVuCkHneZ4FzrGOwE1kGuziTSpCJYqRw8lnz3x8ZPXoof2AIrULnoEedlWYqyny9NPjlkzs1wtBYiMM5Pdru4FEdrzbmZySeHsp8vQVGb+U4HAYkAcLMLU3s/duUrpAvI8kmyM0u64MpXpvZ+7GYXPG4vcgbkBEzlNw5l58cpKuXbGWEcRaXs/Hj5jUPgXJSI83A92a+T8weHWfXA5L9BM5ZVz/zB4ezXSSj2lR/mBkgEQOXdYWcTEENy5wMBiJ1NKu8O52Fl7FlYzbJgFr4YIcQ5ec2GRk2IF74YkQUDzfD6Wtiz9wGyXy6Zi9NEuqOASJuL09kvl5bE6EZA4gAgPTEuyHLKSpYdigRZemJ8SYzujWLm9PRKlTjyeLQnQIJ6lmzFjl1eoboZ2bHLS2L4ckSethqaoIiUAiBVU0fWyVGrF1XNkhjQ1D2ASP5OkiMXaiminagAaiUAKTtRWRJD/k66oybthBBlI1MTj+1frJ0pRgTX2dZi5xhR+sOf14pBiNqPaL5280QcXRvsV2j4F8NfuWMlueQoRjhZ7YwGEdCyab9Wt/dkSa3LrM55CRSeAIlzttqKYURQnnbERmzWyjRiL/ahPeiOON7QU3r83uYT0+NjZrRMpNrSIyIRqwf64ge3Np+YHD7vylfaryi0D4hEjN5xy8bPX2w+ceblTy9/9COpHpg2RFYkJi3uuq3/w+eaT5x45EDy4xxRoU279mRiplZaXyY1sw6KJfVWPJPUwrplDzNqYpiuO1nlZierin2e8BHV0TQB5OlpIcwHQAFQABQABUCrfi8GQJavcor4PxSurdlwWelCQEwgWjb10KqWBHuTWhGI6ss2TMrgrbHKU0Xxt6mJnUNNXh0RspFpRgzbXqXROkZc/ebs5M6hZkpJyE5NdU9FkWQ+SY6ebZVsa6Dtw2gBwG66Uj1ablk86I6a9KKG1PvGmuqaN+9A3LHH+aoHwXtbRZc8LoT5ACgACoBWJ6BaCNa8fPIrVyfQatQgEghvKAK1Jvrr4zQA8IairOg1qxXVIHJ6sL++sWq42wL0YD/IrUoNEkCosOv25rMKu26HEGS1AdIsNom2bSrtHoRI49q7YoiUdg9G2zaJTRa91f8SkCIohmJohmYoFpMA6Nu/h3rjq/frrrdBB+qN+/c/A0BMcu0KUNyZNkj1Gu/KuzFDJBXJRIy4TFwqYuN7Nm/84IXS03fWbnU0q6I40Ts2Fh7enp4cM5Nlcak4I2JEDMT6OstuIgDl/B1FgVKFR7chUqSJ+op6sL+wc3vxiUEqqP961avWMZbY6rdnkiMXzJkZma2KEWQ2OXYR1uYY4zTnCYgAcbSutHX0db7+XtgNXWBqNNlV0rGBd2RuIceWfs0duJIJmUukoCEOqN9rpVoF8oZ25MaJW0qJBMQyl3QguuUPiEDrixRx2wHh3zVUWl/sQH6UPyDjksPnua8IEW/H8yIgcrPVDnyFljrwsdvFW7x5aGfOL7gTPgggivLLIG5+E+vI3wj1oAAoAAqAAqAAKIwAKAAKgAKgACgACoACoDACoP84NJhy/czeTa4/9A9Keuz/z9zHrgAAAABJRU5ErkJggg==" alt="Deutsche Telekom">
+      <div>
+        <h1>KMU Microsoft-Berater</h1>
+        <p>Microsoft 365 für Betriebe bis 15 Mitarbeitende</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Bereiche">
+      <button role="tab" data-tab="advise" aria-selected="true">Beraten</button>
+      <button role="tab" data-tab="compare" aria-selected="false">Vergleichen</button>
+      <button role="tab" data-tab="cheat" aria-selected="false">Spickzettel</button>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="btn-reset" title="Alle Antworten und den Firmennamen löschen und von vorn beginnen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        <span class="lbl">Zurücksetzen</span>
+      </button>
+      <button class="icon-btn" id="btn-customer" aria-pressed="false" title="Blendet Verkäufer-Hinweise aus, damit Sie den Bildschirm zeigen können">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="lbl">Kundenansicht</span>
+      </button>
+      <button class="icon-btn seller" id="btn-prices" title="Preise anpassen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <span class="lbl">Preise</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ================= BERATEN ================= -->
+  <section class="view" id="view-advise" role="tabpanel">
+    <div class="advise">
+      <div class="stage" id="stage" aria-live="polite"></div>
+      <aside class="receipt-col">
+        <div class="receipt" id="receipt"></div>
+        <div class="receipt-actions">
+          <button class="btn btn-outline" id="btn-print" type="button">Zusammenfassung als PDF</button>
+          <button class="btn btn-ghost" id="btn-new" type="button">Neues Gespräch beginnen</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= VERGLEICHEN ================= -->
+  <section class="view" id="view-compare" role="tabpanel" hidden>
+    <div class="page-h">
+      <div>
+        <h2>Was kann welches Paket?</h2>
+        <p>Die drei Business-Pakete in Alltagssprache. Jede Zeile beschreibt, was der Kunde damit tun kann, nicht wie das Produkt heißt.</p>
+      </div>
+      <label class="toggle-row">
+        <span class="switch"><input type="checkbox" id="tech-toggle"><span></span></span>
+        Microsoft-Produktnamen zeigen
+      </label>
+    </div>
+    <div class="cmp"><div class="cmp-scroll"><table id="cmp-table"></table></div></div>
+
+    <details class="expert seller" id="expert">
+      <summary>Alle Funktionen im Detail <span>aus dem Lizenz-Explorer, für Rückfragen</span></summary>
+      <div class="ex-body" id="expert-body"></div>
+    </details>
+  </section>
+
+  <!-- ================= SPICKZETTEL ================= -->
+  <section class="view" id="view-cheat" role="tabpanel" hidden>
+    <div class="page-h">
+      <div>
+        <h2>Spickzettel fürs Gespräch</h2>
+        <p>Typische Einwände mit einer Antwort, die Sie sinngemäß übernehmen können, dazu die wichtigsten Begriffe in einem Satz erklärt.</p>
+      </div>
+    </div>
+    <div class="cheat">
+      <div class="card">
+        <h3>Einwände</h3>
+        <p>Erst zustimmen, dann einordnen, dann eine Frage stellen. Nicht diskutieren.</p>
+        <div id="objections"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <div class="card">
+          <h3>Gut zu wissen</h3>
+          <ul class="facts" id="facts"></ul>
+        </div>
+        <div class="card">
+          <h3>Begriffe einfach erklärt</h3>
+          <dl class="gloss" id="glossary"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  Microsoft-Listenpreise netto pro Person und Monat, Stand Oktober 2026. Telekom-Konditionen können abweichen. Orientierungshilfe ohne Gewähr, kein Ersatz für die verbindlichen Microsoft-Lizenzbedingungen.
+</footer>
+
+<dialog id="dlg-prices">
+  <form method="dialog">
+    <div class="dlg-h">
+      <h3>Preise anpassen</h3>
+      <p>Netto pro Person und Monat bei Jahresvertrag mit jährlicher Zahlung. Änderungen gelten nur in diesem Browser.</p>
+    </div>
+    <div class="dlg-b" id="price-list"></div>
+    <div class="dlg-f">
+      <button class="btn btn-ghost" type="button" id="price-reset">Listenpreise wiederherstellen</button>
+      <button class="btn btn-primary" value="ok">Fertig</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+<div id="print-sheet"></div>
+
+<script>
+/* =====================================================================
+   KMU Microsoft-Berater — Daten
+   Preise: Microsoft-Listenpreise DE, netto, pro Person/Monat,
+   Jahresvertrag mit jährlicher Zahlung, Stand Oktober 2026.
+   ===================================================================== */
+const STAND = 'Oktober 2026';
+const LOGO = document.querySelector('.brand img').src;
+
+const PRICE_DEFAULTS = {
+  bb:      { label:'Business Basic',                         v:6.07 },
+  bs:      { label:'Business Standard',                      v:12.13 },
+  bp:      { label:'Business Premium',                       v:19.06 },
+  bsCB:    { label:'Business Standard + Copilot Business',   v:20.36, note:'Bündel' },
+  bpCB:    { label:'Business Premium + Copilot Business',    v:27.73, note:'Bündel' },
+  cb:      { label:'Copilot Business (einzeln)',              v:18.20, note:'Aktion 15,60 € für Bestandskunden bis 31.12.2026' },
+  phone:   { label:'Teams Phone Standard',                   v:8.70 },
+  line:    { label:'Telekom-Telefonanschluss für Teams',     v:0,    note:'pro telefonierender Person, 0 = nicht ausweisen' },
+  defBiz:  { label:'Defender for Business (Zusatz)',         v:2.60, note:'für Basic und Standard' },
+  defSuite:{ label:'Defender Suite für Business Premium',    v:8.70 },
+};
+const BILLING = {
+  year:  { label:'Jahresvertrag, jährliche Zahlung', f:1 },
+  ymon:  { label:'Jahresvertrag, monatliche Zahlung', f:1.05, note:'+5 %' },
+  month: { label:'Monatlich kündbar', f:1.2, note:'+20 %' },
+};
+
+const PLANS = {
+  bb:{ name:'Business Basic', short:'Basic', claim:'Das digitale Büro im Browser',
+       who:'Für Betriebe, die vor allem am Handy, Tablet oder im Browser arbeiten.' },
+  bs:{ name:'Business Standard', short:'Standard', claim:'Das komplette Office',
+       who:'Für Büroarbeit am PC mit Word, Excel und Outlook wie gewohnt.' },
+  bp:{ name:'Business Premium', short:'Premium', claim:'Office mit Rundum-Schutz',
+       who:'Für alle, die Kundendaten, Laptops und Handys sicher im Griff haben wollen.' },
+};
+const ORDER = ['bb','bs','bp'];
+
+/* Vergleich in Alltagssprache. Wert: 1 = enthalten, 0 = nicht, 'add:<preis-key>' = zubuchbar */
+const FEATURES = [
+  { grp:'Arbeiten und kommunizieren', items:[
+    { t:'Eigene E-Mail-Adresse mit Firmennamen', ex:'info@baeckerei-meier.de statt GMX, mit Kalender, Kontakten und 100 GB Postfach.', tech:'Exchange Online', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'Word, Excel, PowerPoint im Browser und am Handy', ex:'Dokumente überall öffnen und bearbeiten, ohne etwas zu installieren.', tech:'Office im Web und mobile Apps', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'Word, Excel, Outlook fest auf dem PC', ex:'Die gewohnten Programme, auch offline, immer in der neuesten Version. Bis zu 5 PCs oder Macs pro Person.', tech:'Microsoft 365 Apps (Desktop)', v:{bb:0,bs:1,bp:1}, inc:1 },
+    { t:'Chat, Videocall und Besprechungen', ex:'Kurze Abstimmung im Chat, Kundentermin per Video, Bildschirm teilen.', tech:'Microsoft Teams', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'1 TB Speicher pro Person in der Cloud', ex:'Dateien liegen sicher in deutschen bzw. europäischen Rechenzentren und sind auf jedem Gerät da.', tech:'OneDrive, SharePoint', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'Kunden buchen Termine online selbst', ex:'Eigene Buchungsseite, die mit dem Kalender abgleicht. Weniger Telefonate.', tech:'Microsoft Bookings', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'Webinare mit Anmeldeseite', ex:'Online-Veranstaltungen für Kunden mit Registrierung, Wartebereich und Auswertung.', tech:'Teams Webinare', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'Videos schneiden', ex:'Kurze Clips für Website und Social Media direkt im Browser bearbeiten.', tech:'Clipchamp', v:{bb:0,bs:1,bp:1}, inc:1 },
+  ]},
+  { grp:'KI-Assistent', items:[
+    { t:'KI-Chat für Fragen und Texte', ex:'Fragen stellen, Texte formulieren lassen. Eingaben werden nicht zum Training verwendet.', tech:'Microsoft 365 Copilot Chat', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'KI direkt in Word, Outlook und Teams', ex:'Angebot entwerfen, lange Mails zusammenfassen, Besprechungsprotokoll schreiben, mit den eigenen Firmendaten.', tech:'Microsoft 365 Copilot Business', v:{bb:'add:cb',bs:'add:cb',bp:'add:cb'} },
+  ]},
+  { grp:'Sicherheit', items:[
+    { t:'Anmeldung mit zweitem Faktor', ex:'Zusätzlich zum Passwort eine Bestätigung per App. Gestohlene Passwörter allein reichen nicht mehr.', tech:'Multi-Faktor-Authentifizierung', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'Spam- und Virenfilter für E-Mails', ex:'Grundschutz gegen Werbemüll und bekannte Schadsoftware.', tech:'Exchange Online Protection', v:{bb:1,bs:1,bp:1}, inc:1 },
+    { t:'Schutz vor gefährlichen Links und Anhängen', ex:'Links werden beim Anklicken geprüft, Anhänge vorab in einer sicheren Umgebung geöffnet.', tech:'Defender for Office 365 Plan 1', v:{bb:0,bs:0,bp:1}, inc:1 },
+    { t:'Virenschutz mit Angriffserkennung auf PCs', ex:'Erkennt Angriffe wie Erpressungssoftware und stoppt sie automatisch. Bis zu 5 Geräte pro Person.', tech:'Defender for Business', v:{bb:'add:defBiz',bs:'add:defBiz',bp:1}, inc:1 },
+    { t:'Zugriff nur von sicheren Geräten', ex:'Regeln wie „Firmendaten nur auf Firmengeräten“ oder „Anmeldung aus dem Ausland blockieren“.', tech:'Bedingter Zugriff (Entra ID P1)', v:{bb:0,bs:0,bp:1}, inc:1 },
+    { t:'Vertrauliche Dokumente und E-Mails schützen', ex:'Dokumente als vertraulich kennzeichnen, E-Mails verschlüsseln, auch an Externe.', tech:'Vertraulichkeitsbezeichnungen, Purview Message Encryption', v:{bb:0,bs:0,bp:1}, inc:1 },
+  ]},
+  { grp:'Geräte verwalten', items:[
+    { t:'Laptops und Handys zentral verwalten', ex:'Einstellungen und Updates für alle Geräte auf einmal. Bei Verlust aus der Ferne sperren und löschen.', tech:'Microsoft Intune Plan 1', v:{bb:0,bs:0,bp:1}, inc:1 },
+    { t:'Neue Laptops richten sich selbst ein', ex:'Auspacken, anmelden, fertig: Programme und Einstellungen kommen automatisch.', tech:'Windows Autopilot', v:{bb:0,bs:0,bp:1}, inc:1 },
+    { t:'Firmendaten auf privaten Handys trennen', ex:'Firmen-Apps sind geschützt, das Private bleibt privat und unberührt.', tech:'Intune App-Schutzrichtlinien', v:{bb:0,bs:0,bp:1}, inc:1 },
+    { t:'Passwort selbst zurücksetzen', ex:'Passwort vergessen? Mitarbeitende setzen es selbst zurück, ohne Anruf beim IT-Dienstleister.', tech:'Self-Service Password Reset', v:{bb:0,bs:0,bp:1}, inc:1 },
+    { t:'Drucken ohne eigenen Druckserver', ex:'Drucker werden über die Cloud bereitgestellt, auch im Homeoffice.', tech:'Universal Print', v:{bb:0,bs:0,bp:1}, inc:1 },
+  ]},
+  { grp:'Telefonie', items:[
+    { t:'Telefonanlage in Teams', ex:'Telefonieren mit Festnetznummer am PC, Handy oder Tischtelefon. Anrufe weiterleiten, Mailbox, Sammelrufnummer.', tech:'Teams Phone Standard + Telekom-Anschluss (Operator Connect)', v:{bb:'add:phone',bs:'add:phone',bp:'add:phone'} },
+  ]},
+];
+
+/* Detaildaten aus dem M365 Lizenz-Explorer (gefiltert auf Business-Pläne) */
+const DETAIL = [{"cat":"Office-Apps & Produktivität","addon":false,"items":[{"n":"Office im Web","d":"Word, Excel, PowerPoint und OneNote direkt im Browser, ohne lokale Installation. Ideal für gelegentliche Bearbeitung und geteilte Geräte. In Microsoft 365 F1 nur lesender Zugriff (kein Bearbeiten).","u":"https://learn.microsoft.com/office365/servicedescriptions/office-online-service-description/office-online-service-description","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Office Desktop-Apps","d":"Die vollwertigen, lokal installierten Office-Programme (Word, Excel, PowerPoint, Outlook, Access). Bieten den vollen Funktionsumfang auch offline. Publisher wird zum 13.10.2026 eingestellt und ist danach nicht mehr Teil von Microsoft 365.","u":"https://learn.microsoft.com/microsoft-365-apps/","bb":0,"bs":1,"bp":1,"addon":0},{"n":"OneNote","d":"Digitales Notizbuch zum Sammeln von Text, Bildern, Skizzen und Dateien in frei strukturierbaren Seiten. Synchronisiert über alle Geräte hinweg. In Microsoft 365 F1 nur lesender Zugriff über das Web (kein Bearbeiten).","u":"https://learn.microsoft.com/office365/servicedescriptions/office-online-service-description/onenote-online","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Clipchamp","d":"Einfacher Videoeditor zum Schneiden, Vertonen und Exportieren von Clips im Browser, mit Vorlagen, Übergängen und Aufnahmefunktionen. Premium-Funktionen wie 4K-Export oder Stockmaterial nur über eine separate Clipchamp-Premium-Zusatzlizenz.","u":"https://learn.microsoft.com/office365/servicedescriptions/windows-365-service-description/microsoft-clipchamp-service-description","bb":0,"bs":1,"bp":1,"addon":0},{"n":"Microsoft Loop","d":"Flexible Arbeitsfläche mit synchronisierten Komponenten (Listen, Tabellen, Notizen), die mehrere Personen in Echtzeit bearbeiten — Loop-App und Workspaces ab Business Standard. Eingebettete Loop-Komponenten in Outlook, Teams und Word funktionieren auch in Business Basic.","u":"https://learn.microsoft.com/microsoft-365/loop/loop-requirements","bb":0,"bs":1,"bp":1,"addon":0},{"n":"Microsoft 365 Copilot Chat","d":"Der in nahezu allen kostenpflichtigen Microsoft-365-Plänen bereits enthaltene KI-Chat-Assistent für allgemeine Fragen und web-gestützte Recherche, mit Datenschutz für geschäftliche Daten (Eingaben werden nicht zum Training der Modelle verwendet). Dies ist die abgespeckte Variante: Sie greift nicht auf die eigenen Unternehmensdaten zu und ist nicht direkt in Word, Excel, Outlook & Co. eingebettet — diese tiefere Integration sowie Agenten bietet erst die kostenpflichtige Zusatzlizenz Microsoft 365 Copilot.","u":"https://www.microsoft.com/microsoft-365/copilot/copilot-chat","bb":1,"bs":1,"bp":1,"addon":0}]},{"cat":"Postfach & Kalender","addon":false,"items":[{"n":"Exchange Online","d":"Gehostetes E-Mail- und Kalendersystem mit eigenem Postfach pro Nutzer, geteilten Kalendern und Kontakten. Postfachgröße 100 GB in den Business-Plänen (seit Juli 2026, vorher 50 GB; Rollout bis Ende September 2026) sowie in E3 und E5; zusätzliches, mitwachsendes Archivpostfach in Business Premium, E3 und E5.","u":"https://learn.microsoft.com/exchange/exchange-online","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Bookings","d":"Online-Terminbuchungssystem mit eigener Buchungsseite, das Termine automatisch mit Kalendern abgleicht. Reduziert Hin-und-her bei der Terminfindung.","u":"https://learn.microsoft.com/microsoft-365/bookings/bookings-overview","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Exchange Online Protection","d":"Eingebauter Basis-Schutz gegen Spam, Schadsoftware und Phishing für ein- und ausgehende E-Mails. Standardmäßig in allen Plänen mit Exchange enthalten und heute redaktionell Teil von Defender for Office 365.","u":"https://learn.microsoft.com/defender-office-365/eop-about","bb":1,"bs":1,"bp":1,"addon":0}]},{"cat":"Teamarbeit & Speicher","addon":false,"items":[{"n":"Microsoft Teams","d":"Plattform für Chat, Meetings und Zusammenarbeit, in den klassischen Microsoft-365-Suiten enthalten. Seit der Entbündelung 2023/2024 (zuerst im Europäischen Wirtschaftsraum, ab April 2024 weltweit) auch als günstigere „ohne Teams\"-Variante erhältlich, bei der Microsoft Teams separat lizenziert werden muss.","u":"https://learn.microsoft.com/microsoftteams/","bb":1,"bs":1,"bp":1,"addon":0},{"n":"SharePoint Online","d":"Cloud-Plattform für Teamwebsites und gemeinsame Dokumentenablage mit Versionierung und Berechtigungen. Grundlage für Intranets und Dateifreigabe.","u":"https://learn.microsoft.com/sharepoint/introduction","bb":1,"bs":1,"bp":1,"addon":0},{"n":"OneDrive","d":"Persönlicher Cloud-Speicher pro Nutzer mit Synchronisierung und Freigabe. Standardmäßig 1 TB pro Person, in E3 und E5 auf bis zu 5 TB erweiterbar.","u":"https://learn.microsoft.com/office365/servicedescriptions/onedrive-for-business-service-description","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Microsoft Lists","d":"App zum Erfassen und Verfolgen strukturierter Informationen in anpassbaren Listen mit Ansichten und Regeln. Eignet sich für Vorgänge, Inventare oder Aufgaben.","u":"https://learn.microsoft.com/microsoftteams/manage-lists-app","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Planner","d":"Aufgaben- und Projektplanung mit Boards, Zuständigkeiten und Fortschrittsanzeige, in Teams integriert für gemeinsame Vorhaben. Erweiterte Funktionen wie Zeitachsen oder Abhängigkeiten erfordern Planner Premium als kostenpflichtige Zusatzlizenz.","u":"https://learn.microsoft.com/planner/","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Forms","d":"Werkzeug zum Erstellen von Umfragen, Quizzen und Formularen mit automatischer Auswertung. Antworten lassen sich nach Excel exportieren.","u":"https://learn.microsoft.com/office365/servicedescriptions/microsoft-forms-service-description","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Viva Engage","d":"Internes soziales Netzwerk für unternehmensweite Kommunikation, Communities und Wissensaustausch. Premium-Funktionen wie Leadership-Analysen oder gesteuerte Kampagnen erfordern eine separate Viva-Lizenz.","u":"https://learn.microsoft.com/viva/engage/overview","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Microsoft Places","d":"Werkzeug zur Belegungs- und Raumverwaltung für hybride Arbeitsmodelle. Zeigt an, welche Kollegen wann ins Büro kommen, und hilft bei der Suche nach freien Räumen und deren Buchung (Places Explorer und Places Finder). Seit April 2026 in allen Plänen mit Outlook-/Teams-Kalender enthalten (nicht in Frontline); buchbare Schreibtische benötigen die Teams Shared Space License, KI-Funktionen Microsoft 365 Copilot.","u":"https://learn.microsoft.com/microsoft-365/places/","bb":1,"bs":1,"bp":1,"addon":0}]},{"cat":"Geräteverwaltung (Intune)","addon":false,"items":[{"n":"Microsoft Intune Plan 1","d":"Cloud-Dienst zum Verwalten und Absichern von Geräten und Apps über Richtlinien, deckt Smartphones, Tablets, Laptops und Windows-Rechner ab. Seit 01.07.2026 bringen Microsoft 365 E3 und E5 zusätzlich Intune Plan 2, Remote Help und Advanced Analytics mit, E5 außerdem den Rest der Intune Suite.","u":"https://learn.microsoft.com/intune/fundamentals/what-is-intune","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Komplette Geräteverwaltung","d":"Zentrale Verwaltung kompletter Geräte inklusive Konfiguration, Sicherheitsrichtlinien und Fernlöschung. Greift auf Geräteebene.","u":"https://learn.microsoft.com/intune/device-enrollment/guide","bb":0,"bs":0,"bp":1,"addon":0},{"n":"App-Verwaltung (auch auf privaten Geräten)","d":"Schützt Unternehmensdaten auf App-Ebene, etwa durch Kopier-Sperren oder selektives Löschen. Funktioniert auch auf privaten Geräten ohne volle Verwaltung.","u":"https://learn.microsoft.com/intune/app-management/overview","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Windows Autopilot","d":"Automatisierte Erstkonfiguration neuer Windows-Geräte direkt ab Werk, ohne manuelles Aufsetzen. Das Gerät richtet sich beim ersten Anmelden selbst ein.","u":"https://learn.microsoft.com/autopilot/overview","bb":0,"bs":0,"bp":1,"addon":0}]},{"cat":"Identität & Zugriff (Entra)","addon":false,"items":[{"n":"Microsoft Entra ID","d":"Cloud-Verzeichnis für Benutzerkonten, Gruppen und Anmeldung an Microsoft-365-Diensten. Grundlage jeder Identität im Tenant.","u":"https://learn.microsoft.com/entra/fundamentals/what-is-entra","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Multi-Faktor-Authentifizierung","d":"Zusätzlicher Anmeldenachweis neben dem Passwort — etwa über die Authenticator-App, einen Passkey, eine SMS oder einen Hardware-Token. Schützt Konten auch bei gestohlenen Kennwörtern.","u":"https://learn.microsoft.com/entra/identity/authentication/concept-mfa-howitworks","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Bedingter Zugriff (Conditional Access)","d":"Regelwerk, das den Zugriff abhängig von Nutzer, Gerät, Standort und Risiko erlaubt, mit einer zusätzlichen Anmeldung absichert oder blockiert. Kernbaustein eines Zero-Trust-Ansatzes.","u":"https://learn.microsoft.com/entra/identity/conditional-access/overview","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Passwort selbst zurücksetzen","d":"Ermöglicht Nutzern, ihr Passwort selbst zurückzusetzen — über einen zweiten Faktor statt eines Helpdesk-Anrufs. In hybriden Umgebungen wird das neue Passwort auch ins lokale Active Directory zurückgeschrieben.","u":"https://learn.microsoft.com/entra/identity/authentication/concept-sspr-howitworks","bb":0,"bs":0,"bp":1,"addon":0}]},{"cat":"Sicherheit (Defender)","addon":false,"items":[{"n":"Defender for Office 365 Plan 1","d":"Erweiterter Schutz für E-Mails und Office-Dokumente: prüft Links beim Anklicken in Echtzeit und öffnet verdächtige Anhänge zuerst in einer abgeschotteten Umgebung. In Business Premium und E5 enthalten, seit 01.07.2026 auch in Microsoft 365 E3 und Office 365 E3.","u":"https://learn.microsoft.com/defender-office-365/mdo-about","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Defender for Business","d":"Endpunktschutz mit Erkennung und Antwort auf Bedrohungen für Server und Clients, zugeschnitten auf kleinere Organisationen (bis 300 Nutzer). In Business Premium enthalten; für Business Basic und Business Standard als kostenpflichtiges Add-on erhältlich.","u":"https://learn.microsoft.com/defender-business/mdb-overview","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Safe Links","d":"Prüft angeklickte Links in E-Mails und Dokumenten in Echtzeit auf Schädlichkeit. Schützt auch vor Links, die erst nach Zustellung bösartig werden.","u":"https://learn.microsoft.com/defender-office-365/safe-links-about","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Safe Attachments","d":"Öffnet E-Mail-Anhänge in einer abgeschotteten Umgebung und prüft ihr Verhalten vor Zustellung. Fängt unbekannte Schadsoftware ab, die Signaturfilter übersehen.","u":"https://learn.microsoft.com/defender-office-365/safe-attachments-about","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Regeln zur Verkleinerung der Angriffsfläche","d":"Regeln auf Windows-Endgeräten, die typische Angriffsmuster blockieren — etwa missbrauchte Office-Makros, verdächtige Skripte oder Diebstahl von Anmeldedaten. Verringert die Zahl der Wege, über die ein Gerät kompromittiert werden kann.","u":"https://learn.microsoft.com/defender-endpoint/attack-surface-reduction-rules-overview","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Automatische Untersuchung und Reaktion","d":"Untersucht Sicherheitswarnungen auf Endgeräten automatisch, ermittelt den Sachverhalt und ergreift bei Bedarf selbstständig Gegenmaßnahmen (z.B. eine Datei in Quarantäne stellen). Entlastet Sicherheitsteams bei der Bearbeitung großer Alarmmengen.","u":"https://learn.microsoft.com/defender-endpoint/automated-investigations","bb":0,"bs":0,"bp":1,"addon":0},{"n":"Microsoft Defender Vulnerability Management","d":"Findet und priorisiert Schwachstellen und Fehlkonfigurationen auf Endgeräten nach tatsächlichem Risiko und liefert konkrete Empfehlungen zur Behebung. Kernfunktionen in E5 und Business Premium enthalten; erweiterte Funktionen wie authentifizierte Scans als kostenpflichtige Zusatzlizenz.","u":"https://learn.microsoft.com/defender-vulnerability-management/defender-vulnerability-management","bb":0,"bs":0,"bp":1,"addon":0}]},{"cat":"Information Protection & Compliance","addon":false,"items":[{"n":"Vertraulichkeitsbezeichnungen","d":"Kennzeichnungen für Dokumente und E-Mails (Microsoft Purview Information Protection), die Verschlüsselung, Wasserzeichen und Zugriffsregeln durchsetzen und am Inhalt haften bleiben — auch beim Teilen. Automatische Klassifizierung ist eine E5-Funktion.","u":"https://learn.microsoft.com/purview/sensitivity-labels","bb":0,"bs":0,"bp":1,"addon":0},{"n":"E-Mail-Verschlüsselung","d":"Verschlüsselt einzelne E-Mails (Microsoft Purview Message Encryption), sodass auch externe Empfänger sie sicher öffnen können. Erweiterte Funktionen wie Ablaufdatum und Widerruf sind nur in E5 enthalten.","u":"https://learn.microsoft.com/purview/ome","bb":0,"bs":0,"bp":1,"addon":0}]},{"cat":"Teams Telefonie & Meetings","addon":false,"items":[{"n":"Teams Webinare","d":"Strukturierte Online-Veranstaltungen mit Registrierungsseite, Wartesaal und Auswertung — bis zu 1.000 Teilnehmende. Seit April 2026 sind Branding, Themes und E-Mail-Anpassung auch ohne Teams Premium enthalten.","u":"https://learn.microsoft.com/microsoftteams/plan-webinars","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Großveranstaltungen (Town Halls)","d":"Großveranstaltungen für unternehmensweite Ansprachen mit Produktions-Funktionen, virtuellem Greenroom und Fragerunden — seit April 2026 standardmäßig bis 3.000 interaktive und 10.000 reine Zuschauer, inklusive eCDN und Echtzeit-Auswertung. Mehr Teilnehmende (bis 100.000) erfordern Teilnehmer-Pakete als Zusatzlizenz. Nachfolger der eingestellten Live Events.","u":"https://learn.microsoft.com/microsoftteams/plan-town-halls","bb":1,"bs":1,"bp":1,"addon":0},{"n":"Immersive Events","d":"Veranstaltungen in einer 3D-Umgebung mit Avataren für moderne Konferenz- und Networking-Formate. Seit April 2026 ohne Teams Premium in den regulären Teams-Lizenzen enthalten.","u":"https://learn.microsoft.com/microsoftteams/immersive-spaces-in-teams","bb":1,"bs":1,"bp":1,"addon":0}]},{"cat":"Windows & Lizenzrechte","addon":false,"items":[{"n":"Universal Print","d":"Cloud-basierter Druckdienst ohne lokale Druckserver, verwaltet Drucker zentral über Microsoft Entra ID. Enthalten in Business Premium, E3 und E5 mit 100 Druckjobs pro Nutzer und Monat aus einem geteilten Pool.","u":"https://learn.microsoft.com/universal-print/get-access-to-universal-print","bb":0,"bs":0,"bp":1,"addon":0}]},{"cat":"Add-ons (separat lizenziert)","addon":true,"items":[{"n":"Teams Phone","d":"Fügt Teams eine vollwertige Cloud-Telefonanlage hinzu — Anrufe, Voicemail, Anrufweiterleitung, Anrufgruppen, automatische Telefonzentralen. In Microsoft 365 E5 als „Teams Phone Standard\" enthalten; in Business-Plänen und E3 als separates Add-on. Für Anrufe ins öffentliche Telefonnetz ist zusätzlich ein Sprachkanal nötig — entweder Microsofts eigener Calling Plan oder eine Anbindung über einen lokalen Telefonanbieter (Operator Connect oder Direct Routing).","u":"https://learn.microsoft.com/microsoftteams/what-is-phone-system-in-office-365","bb":0,"bs":0,"bp":0,"addon":1},{"n":"Teams Premium","d":"Erweitert Teams um erweiterten Meeting-Schutz (Wasserzeichen, Ende-zu-Ende-Verschlüsselung), intelligente Meeting-Zusammenfassungen, die Queues-App für Anrufwarteschlangen, erweitertes Bookings und Meeting-Personalisierung. Seit April 2026 sind Places, Event-Branding, eCDN und Immersive Events in die regulären Teams-Lizenzen gewandert.","u":"https://learn.microsoft.com/microsoftteams/teams-add-on-licensing/licensing-enhance-teams","bb":0,"bs":0,"bp":0,"addon":1},{"n":"Microsoft 365 Copilot Business","d":"Gleicher Funktionsumfang wie Microsoft 365 Copilot, aber als günstigere Variante für Business-Pläne (Basic, Standard, Premium, Apps for Business) in Tenants bis 300 Nutzer. Seit Dezember 2025 erhältlich, auch als Bundle mit dem Business-Plan.","u":"https://www.microsoft.com/microsoft-365/copilot/business","bb":0,"bs":0,"bp":0,"addon":1}]},{"cat":"Security & Compliance Suites","addon":true,"items":[{"n":"Defender Suite (BP)","d":"Erweitert Microsoft 365 Business Premium um den erweiterten Sicherheits-Stack über Endgeräte, Identitäten, Cloud-Apps und E-Mails hinweg. Bringt kleinen und mittleren Organisationen Funktionen wie Identitätsschutz, Cloud-App-Sicherheit und automatische Untersuchung, die sonst nur in Microsoft 365 E5 enthalten sind.","u":"https://www.microsoft.com/de-de/security/pricing/small-medium-business/security-add-on-plans","bb":0,"bs":0,"bp":0,"addon":1}]}];
+
+/* ---------- Fragen ---------- */
+const I = {
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  desk:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  phone:'<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',
+  mix:'<rect x="2" y="5" width="14" height="10" rx="1.5"/><rect x="15" y="9" width="7" height="12" rx="1.5"/><path d="M6 19h6"/>',
+  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+  box:'<path d="M21 8 12 3 3 8v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+  cloud:'<path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.78A6 6 0 1 0 6 17.8"/><path d="M6 19h11.5"/>',
+  g:'<circle cx="12" cy="12" r="9"/><path d="M12 12h7"/>',
+  self:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/>',
+  friend:'<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20v-1a6 6 0 0 1 12 0v1M14 20v-.5a4 4 0 0 1 8 0v.5"/>',
+  tool:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4Z"/>',
+  laptop:'<rect x="4" y="4" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>',
+  byod:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M10 6h4"/><path d="M12 18h.01"/>',
+  none:'<circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>',
+  lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>',
+  pbx:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/>',
+  mobile:'<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9 6h6M9 10h6"/>',
+  ok:'<path d="M20 6 9 17l-5-5"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+  pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
+  warn:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+};
+const svg = (k, sw=2) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]||''}</svg>`;
+
+const QUESTIONS = [
+  { id:'users', type:'count', title:'Wie viele Personen arbeiten im Betrieb mit E-Mail oder Computer?',
+    help:'Inhaberin oder Inhaber mitzählen. Aushilfen ohne eigene E-Mail-Adresse brauchen keine Lizenz.',
+    note:'Jede Person braucht eine eigene Lizenz. Gemeinsame Postfächer wie info@ oder rechnung@ sind kostenlos.' },
+  { id:'work', type:'single', title:'Wie arbeitet das Team überwiegend?',
+    help:'Danach richtet sich, ob die Office-Programme fest auf dem PC laufen müssen.',
+    opts:[
+      { v:'pc',    i:'desk',  t:'Am Schreibtisch', d:'PC oder Laptop, Angebote in Word, Kalkulation in Excel.' },
+      { v:'mix',   i:'mix',   t:'Gemischt', d:'Büro und unterwegs, zum Beispiel Handwerk mit Büro.' },
+      { v:'mobile',i:'phone', t:'Vor allem unterwegs', d:'Handy und Tablet, am PC nur selten und kurz.' },
+    ]},
+  { id:'today', type:'single', title:'Was nutzt der Betrieb heute für E-Mail und Office?',
+    opts:[
+      { v:'private', i:'mail',  t:'Privat-Postfach', d:'GMX, web.de, T-Online oder Gmail, Office eher nicht.' },
+      { v:'bought',  i:'box',   t:'Office gekauft', d:'Office 2016, 2019 oder 2021 auf den PCs installiert.' },
+      { v:'m365',    i:'cloud', t:'Schon Microsoft 365', d:'Hat bereits ein Abo und will wechseln oder erweitern.' },
+      { v:'google',  i:'g',     t:'Google Workspace', d:'Gmail mit eigener Domain, Google Docs.' },
+    ],
+    sub:{ when:'m365', id:'current', label:'Welches Paket genau?', opts:[['bb','Basic'],['bs','Standard'],['bp','Premium'],['other','Weiß nicht']] },
+    notes:{
+      bought:'Office 2016 und 2019 bekommen seit 14.10.2025 keine Sicherheitsupdates mehr, Office 2021 ab 13.10.2026 ebenfalls nicht. Das ist Ihr stärkstes Argument.',
+      m365:'Fragen Sie nach der letzten Rechnung. Darauf steht das Paket und der Verlängerungstermin.',
+      google:'Postfächer, Kalender und Dateien lassen sich umziehen. Für die Migration einen Spezialisten einplanen.',
+    }},
+  { id:'it', type:'single', title:'Wer kümmert sich um die IT?',
+    opts:[
+      { v:'self',     i:'self',   t:'Macht der Chef selbst', d:'Oder wer gerade Zeit hat.' },
+      { v:'friend',   i:'friend', t:'Ein Bekannter hilft', d:'Neffe, Nachbar, Kollege aus dem Verein.' },
+      { v:'provider', i:'tool',   t:'IT-Dienstleister', d:'Ein Systemhaus oder Techniker mit Vertrag.' },
+    ],
+    notes:{ provider:'Mit Business Premium kann der Dienstleister alle Geräte zentral betreuen. Er wird das Paket meist begrüßen.' }},
+  { id:'devices', type:'multi', title:'Welche Geräte nutzen die Mitarbeitenden für die Arbeit?',
+    help:'Mehrere Antworten möglich.',
+    opts:[
+      { v:'laptops', i:'laptop', t:'Firmen-PCs und Laptops', d:'Vom Betrieb gekauft und ausgegeben.' },
+      { v:'phones',  i:'mobile', t:'Firmenhandys', d:'Diensthandys oder Tablets.' },
+      { v:'byod',    i:'byod',   t:'Private Handys', d:'Mails und Termine laufen auf dem eigenen Handy.' },
+      { v:'none',    i:'none',   t:'Nichts davon', d:'Es wird kaum mit eigenen Geräten gearbeitet.', excl:true },
+    ],
+    notes:{ laptops:'Windows 10 bekommt seit 14.10.2025 nur noch gegen Aufpreis Sicherheitsupdates. Fragen Sie nach dem Alter der Laptops.' }},
+  { id:'data', type:'multi', title:'Was trifft auf die Daten im Betrieb zu?',
+    help:'Mehrere Antworten möglich.',
+    opts:[
+      { v:'sensitive', i:'lock',   t:'Sensible Kundendaten', d:'Patienten, Mandanten, Gehälter, Ausweise, Bankdaten.' },
+      { v:'insurance', i:'shield', t:'Cyber-Versicherung', d:'Vorhanden oder geplant, mit Auflagen zur IT-Sicherheit.' },
+      { v:'incident',  i:'warn',   t:'Schon mal Ärger gehabt', d:'Gehacktes Postfach, Betrugsmail, Virus.' },
+      { v:'normal',    i:'doc',    t:'Nichts Besonderes', d:'Angebote, Rechnungen, normale Korrespondenz.', excl:true },
+    ],
+    notes:{ incident:'Nachfragen, was genau passiert ist. Ein gehacktes Postfach ist der häufigste Fall und mit Business Premium deutlich besser abzusichern.' }},
+  { id:'phone', type:'single', title:'Wie wird heute telefoniert?',
+    opts:[
+      { v:'pbx',     i:'pbx',    t:'Telefonanlage im Büro', d:'Alte Anlage, Vertrag läuft aus oder Wartung wird teuer.' },
+      { v:'mobile',  i:'mobile', t:'Nur mit Handys', d:'Jeder hat sein Handy, keine Festnetznummer im Einsatz.' },
+      { v:'fine',    i:'ok',     t:'Passt so', d:'Telefonie ist gerade kein Thema.' },
+    ],
+    notes:{ pbx:'Teams Phone ist die Telefonanlage, den Anschluss ins Telefonnetz liefert die Telekom. Beides gehört in ein Angebot.' }},
+  { id:'ai', type:'single', title:'Wie viel Zeit geht für Texte und Schreibarbeit drauf?',
+    help:'Angebote, E-Mails, Protokolle, Social-Media-Posts, Stellenanzeigen.',
+    opts:[
+      { v:'lots',    i:'pen',   t:'Sehr viel', d:'Das kostet jeden Tag Zeit, am liebsten abgeben.' },
+      { v:'curious', i:'spark', t:'Bin neugierig auf KI', d:'Würde es gern mal ausprobieren.' },
+      { v:'no',      i:'none',  t:'Kein Thema', d:'Brauchen wir aktuell nicht.' },
+    ],
+    notes:{ lots:'Mit 1 bis 3 Personen starten, die am meisten schreiben. Später ausweiten ist einfacher als zurückfahren.' }},
+];
+
+/* ---------- Einwände, Fakten, Glossar ---------- */
+const OBJECTIONS = [
+  { q:'Das ist uns zu teuer.', a:[
+    'Rechnen Sie pro Person und Tag: Business Premium kostet rund 63 Cent am Tag, weniger als ein Kaffee.',
+    'Dazu kommt, was wegfällt: gekaufte Office-Lizenzen, separater Virenschutz, Speicherplatz, oft eine alte Telefonanlage.',
+  ], ask:'Was zahlen Sie heute zusammen für Office, Virenschutz und Ihren IT-Helfer?' },
+  { q:'Wir haben Office 2019, das reicht.', a:[
+    'Office 2016 und 2019 bekommen seit Oktober 2025 keine Sicherheitsupdates mehr. Wer damit Mails öffnet, arbeitet mit offener Tür.',
+    'Mit Microsoft 365 ist immer die aktuelle Version installiert, ohne dass jemand etwas kaufen oder aufspielen muss.',
+  ], ask:'Wann haben Sie Office zuletzt gekauft, und auf wie vielen PCs läuft es?' },
+  { q:'Google ist günstiger.', a:[
+    'Bei reinen E-Mail-Paketen stimmt das teilweise. Sobald Word und Excel gebraucht werden, fehlt bei Google das gewohnte Office.',
+    'Viele Kunden, Lieferanten und Steuerberater schicken Word- und Excel-Dateien. Mit Microsoft 365 öffnen die sich ohne Formatierungsärger.',
+  ], ask:'Mit welchen Programmen arbeiten Ihre Kunden und Ihr Steuerbüro?' },
+  { q:'Unsere Daten sollen nicht in die USA.', a:[
+    'Für Geschäftskunden in Europa speichert Microsoft die Daten in Rechenzentren in der EU, für deutsche Kunden in der Regel in Deutschland.',
+    'Microsoft schließt mit jedem Geschäftskunden einen Auftragsverarbeitungsvertrag nach DSGVO. Den bekommt Ihr Datenschutzbeauftragter auf Wunsch.',
+  ], ask:'Gibt es eine Vorgabe von Kammer, Verband oder Versicherung, die Sie einhalten müssen?' },
+  { q:'Wir sind nur fünf Leute, wer will uns schon hacken?', a:[
+    'Angreifer suchen nicht gezielt, sie probieren automatisch Millionen Postfächer durch. Kleine Betriebe sind oft leichter zu knacken.',
+    'Typischer Schaden: Ein gehacktes Postfach verschickt falsche Rechnungen mit neuer Bankverbindung an Ihre Kunden.',
+  ], ask:'Was würde passieren, wenn Sie drei Tage nicht an Ihre Mails und Dateien kommen?' },
+  { q:'Brauchen wir KI wirklich?', a:[
+    'Der KI-Chat ist in jedem Paket schon enthalten, ohne Aufpreis. Damit kann man risikolos anfangen.',
+    'Copilot Business lohnt sich für die Personen, die täglich viel schreiben. Man muss nicht alle ausstatten.',
+  ], ask:'Wer bei Ihnen schreibt die meisten Angebote und E-Mails?' },
+  { q:'Wir wollen uns nicht so lange binden.', a:[
+    'Monatlich kündbar geht auch, kostet aber rund 20 % mehr. Beim Jahresvertrag kann man in den ersten 7 Tagen noch zurück.',
+    'Mitarbeitende hinzufügen geht jederzeit. Reduzieren geht beim Jahresvertrag erst zur Verlängerung.',
+  ], ask:'Planen Sie in den nächsten zwölf Monaten Neueinstellungen oder Abgänge?' },
+];
+
+const FACTS = [
+  ['Größe', 'Business-Pakete gehen bis 300 Personen. Bei 15 Mitarbeitenden ist das kein Thema, auch nicht bei Wachstum.'],
+  ['Mischen', 'Pakete lassen sich in einem Betrieb mischen, zum Beispiel Chef und Büro mit Premium, Monteure mit Basic.'],
+  ['Geräte', 'Jede Person darf die Office-Programme auf 5 PCs oder Macs, 5 Tablets und 5 Handys nutzen.'],
+  ['Laufzeit', 'Jahresvertrag ist Standard. Rückgabe nur in den ersten 7 Tagen nach Kauf oder Verlängerung.'],
+  ['Ohne Teams', 'In der EU gibt es die Pakete auch ohne Teams, etwas günstiger. Nur anbieten, wenn der Kunde sicher kein Teams will.'],
+  ['Copilot', 'Copilot Business braucht ein Business-Paket als Basis. Im Bündel mit Standard oder Premium deutlich günstiger als einzeln.'],
+  ['Telefonie', 'Teams Phone ersetzt die Telefonanlage. Rufnummern können mitgenommen werden, der Anschluss kommt von der Telekom.'],
+  ['Publisher', 'Microsoft Publisher wird am 13.10.2026 eingestellt. Wer Flyer damit macht, braucht eine Alternative.'],
+];
+
+const GLOSSARY = [
+  ['Lizenz', 'Das Nutzungsrecht für eine Person. Wer eine Lizenz hat, bekommt E-Mail, Programme und Speicher.'],
+  ['Microsoft 365', 'Das Abo, in dem Office-Programme, E-Mail, Teams und Speicher zusammengefasst sind.'],
+  ['Copilot Chat', 'Der KI-Chat, der in allen Paketen kostenlos dabei ist. Kennt die Firmendaten nicht.'],
+  ['Copilot Business', 'Der KI-Assistent in Word, Outlook und Teams, der mit den eigenen Mails und Dokumenten arbeitet. Kostet extra.'],
+  ['Tenant', 'Der eigene, abgeschlossene Bereich des Betriebs bei Microsoft. Dort liegen alle Konten und Daten.'],
+  ['Zwei-Faktor-Anmeldung', 'Neben dem Passwort eine Bestätigung per Handy-App. Auf Englisch MFA.'],
+  ['Teams Phone', 'Die Telefonanlage in Teams. Für Anrufe ins Telefonnetz braucht es zusätzlich einen Telefonanschluss.'],
+  ['Intune', 'Microsofts Werkzeug, mit dem Laptops und Handys zentral verwaltet werden. Steckt in Business Premium.'],
+];
+
+/* =====================================================================
+   Zustand
+   ===================================================================== */
+const STORE = 'kmu_berater_v1', PRICE_STORE = 'kmu_berater_prices_v1';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} },
+};
+const freshState = () => ({
+  step:0, answers:{ users:5, devices:[], data:[] }, customer:'',
+  cfg:null,               // Konfiguration im Ergebnis (wird aus Antworten abgeleitet)
+});
+let S = Object.assign(freshState(), store.get(STORE) || {});
+let priceOverrides = store.get(PRICE_STORE) || {};
+const save = () => store.set(STORE, S);
+
+const P = k => (priceOverrides[k] != null ? priceOverrides[k] : PRICE_DEFAULTS[k].v);
+const eur = (n, dec=2) => n.toLocaleString('de-DE', { style:'currency', currency:'EUR', minimumFractionDigits:dec, maximumFractionDigits:dec });
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* =====================================================================
+   Empfehlungslogik
+   ===================================================================== */
+function analyse(a){
+  const devices = a.devices || [], data = a.data || [];
+  let sec = 0; const why = [];
+  if (data.includes('sensitive')) sec += 2;
+  if (data.includes('insurance')) sec += 2;
+  if (data.includes('incident'))  sec += 2;
+  if (devices.includes('laptops')) sec += 2;
+  if (devices.includes('phones'))  sec += 1;
+  if (devices.includes('byod'))    sec += 1;
+  if (a.it === 'provider') sec += 1;
+  if (a.it === 'self')     sec += 1;
+  const desktop = a.work === 'pc' || a.work === 'mix' || a.today === 'bought';
+  let plan = sec >= 2 ? 'bp' : (desktop ? 'bs' : 'bb');
+  return { plan, sec, desktop };
+}
+
+function deriveCfg(a){
+  const r = analyse(a), n = a.users || 1;
+  let cop = 0;
+  if (a.ai === 'lots') cop = Math.min(3, n);
+  if (a.ai === 'curious') cop = Math.min(1, n);
+  return {
+    plan:r.plan, users:n,
+    copilot:cop,
+    phone:a.phone === 'pbx' ? n : 0,
+    defBiz:r.plan !== 'bp' && r.sec === 1,
+    defSuite:false,
+    billing:'year',
+  };
+}
+
+function cost(cfg, planOverride){
+  const plan = planOverride || cfg.plan;
+  const f = BILLING[cfg.billing].f, n = cfg.users;
+  const c = Math.min(cfg.copilot, n), ph = Math.min(cfg.phone, n);
+  const lines = [];
+  if (plan === 'bb'){
+    lines.push({ k:`${PLANS.bb.name}`, q:n, p:P('bb')*f });
+    if (c) lines.push({ k:'Copilot Business', q:c, p:P('cb')*f });
+  } else {
+    const bundle = plan === 'bs' ? 'bsCB' : 'bpCB';
+    if (n - c) lines.push({ k:PLANS[plan].name, q:n-c, p:P(plan)*f });
+    if (c)     lines.push({ k:`${PLANS[plan].name} + Copilot`, q:c, p:P(bundle)*f });
+  }
+  if (cfg.defBiz && plan !== 'bp') lines.push({ k:'Defender for Business', q:n, p:P('defBiz')*f });
+  if (cfg.defSuite && plan === 'bp') lines.push({ k:'Defender Suite', q:n, p:P('defSuite')*f });
+  if (ph){
+    lines.push({ k:'Teams Phone', q:ph, p:P('phone')*f });
+    if (P('line') > 0) lines.push({ k:'Telekom-Anschluss', q:ph, p:P('line') });
+  }
+  const total = lines.reduce((s,l) => s + l.q*l.p, 0);
+  return { lines, total, perHead: total / n, lineMissing: ph > 0 && !(P('line') > 0) };
+}
+
+/* Begründung in Kundensprache */
+function reasons(a, cfg){
+  const plan = cfg.plan, out = [];
+  const d = a.devices || [], data = a.data || [];
+  if (a.today === 'private') out.push('Eine eigene E-Mail-Adresse mit Ihrem Firmennamen wirkt professioneller als ein Privatpostfach, und Kalender und Kontakte sind für alle gemeinsam nutzbar.');
+  if (a.today === 'bought' && plan !== 'bb') out.push('Ersetzt Ihr gekauftes Office. Sie haben immer die aktuelle Version, inklusive Sicherheitsupdates, ohne neu kaufen zu müssen.');
+  if (a.today === 'google') out.push('E-Mails, Kalender und Dateien aus Google lassen sich übernehmen. Danach arbeiten Sie mit Word und Excel wie Ihre Kunden und Ihr Steuerbüro.');
+  if (plan === 'bb') out.push('Word, Excel und Outlook laufen im Browser und auf Handy und Tablet, ohne Installation. Für die Arbeit unterwegs reicht das.');
+  if (plan !== 'bb' && (a.work === 'pc' || a.work === 'mix')) out.push('Word, Excel und Outlook sind fest auf den PCs installiert, so wie Sie es gewohnt sind, und laufen auch offline.');
+  if (plan === 'bp'){
+    if (d.includes('laptops')) out.push('Ihre Laptops werden zentral verwaltet. Geht einer verloren, wird er aus der Ferne gesperrt und gelöscht.');
+    if (d.includes('byod')) out.push('Auf privaten Handys bleiben Firmendaten getrennt und geschützt. Das Private bleibt privat.');
+    if (data.includes('sensitive')) out.push('Kunden- und Geschäftsdaten sind besser geschützt: Virenschutz mit Angriffserkennung und Prüfung gefährlicher Links und Anhänge.');
+    if (data.includes('insurance')) out.push('Erfüllt typische Auflagen von Cyber-Versicherungen, etwa Zwei-Faktor-Anmeldung und Virenschutz mit Angriffserkennung.');
+    if (data.includes('incident')) out.push('Gehackte Postfächer und Betrugsmails werden deutlich schwerer: Anmeldungen von fremden Geräten oder aus dem Ausland lassen sich sperren.');
+    if (a.it === 'provider') out.push('Ihr IT-Dienstleister kann Geräte und Konten zentral aus der Ferne betreuen. Das spart Vor-Ort-Termine.');
+    if (a.it !== 'provider' && d.includes('laptops')) out.push('Neue Laptops richten sich beim ersten Anmelden selbst ein. Niemand muss mehr Programme von Hand aufspielen.');
+  }
+  if (plan === 'bs' && cfg.defBiz) out.push('Mit dem Zusatz Defender for Business sind die PCs gegen Erpressungssoftware und Angriffe geschützt, für wenige Euro im Monat.');
+  if (cfg.copilot > 0) out.push(`Copilot schreibt Angebote vor, fasst lange E-Mails zusammen und erstellt Besprechungsprotokolle, direkt in Word, Outlook und Teams. Starten Sie mit ${cfg.copilot === 1 ? 'einer Person' : cfg.copilot + ' Personen'}.`);
+  if (cfg.phone > 0) out.push('Die Telefonanlage wandert in Teams. Telefonieren mit Ihrer Festnetznummer am PC, Handy oder Tischtelefon, auch im Homeoffice.');
+  if (out.length < 2) out.push(PLANS[plan].who);
+  return out.slice(0, 6);
+}
+
+/* Hinweise nur für Verkäufer */
+function sellerHints(a, cfg){
+  const h = [], r = analyse(a);
+  if (a.today === 'bought') h.push(['warn','Office 2016 und 2019 ohne Sicherheitsupdates seit 14.10.2025, Office 2021 ab 13.10.2026. Fragen Sie, welche Version installiert ist.']);
+  if ((a.devices||[]).includes('laptops')) h.push(['warn','Windows 10 bekommt seit 14.10.2025 nur noch gegen Aufpreis Updates. Alter der Laptops erfragen, das kann ein Folgegeschäft sein.']);
+  if (cfg.plan === 'bp' && r.plan === 'bp') h.push(['info','Business Premium ist Microsofts eigene Empfehlung für kleine Betriebe. Den Aufpreis zu Standard pro Person nennen, nicht als Gesamtsumme.']);
+  if (cfg.plan === 'bb' && a.work !== 'mobile') h.push(['warn','Basic hat keine Office-Programme für den PC. Wenn jemand Excel-Kalkulationen oder Outlook am PC braucht, Standard wählen.']);
+  if (cfg.plan === 'bs' && r.sec >= 1) h.push(['info','Spar-Variante, falls Premium zu teuer ist: Standard plus Defender for Business. Geräteverwaltung fehlt dann aber.']);
+  if (cfg.copilot > 0) h.push(['info','Copilot Business gibt es nur zu einem Business-Paket. Im Bündel mit Standard oder Premium deutlich günstiger. Aktionspreis 15,60 € einzeln nur für Bestandskunden bis 31.12.2026.']);
+  if (cfg.phone > 0) h.push(['info','Teams Phone allein reicht nicht zum Telefonieren ins Netz. Telekom-Anschluss mit anbieten und Rufnummernportierung klären.']);
+  if (a.ai === 'curious' && cfg.copilot === 0) h.push(['info','Der KI-Chat ist in jedem Paket enthalten. Zeigen Sie ihn kurz live, das öffnet die Tür für Copilot später.']);
+  if (a.today === 'google') h.push(['info','Migration aus Google ist ein eigenes Projekt. Spezialisten früh dazuholen.']);
+  if (a.users >= 12) h.push(['info','Bei 12 oder mehr Personen nach Wachstumsplänen fragen und Mischlizenzierung prüfen, zum Beispiel Basic für Mitarbeitende ohne PC.']);
+  return h;
+}
+
+/* =====================================================================
+   Rendering: Fragen
+   ===================================================================== */
+const stage = document.getElementById('stage');
+const RESULT_STEP = QUESTIONS.length;
+
+function answered(q){
+  const v = S.answers[q.id];
+  if (q.type === 'count') return v >= 1;
+  if (q.type === 'multi') return Array.isArray(v) && v.length > 0;
+  return !!v;
+}
+
+function renderProgress(){
+  return `<div class="progress" aria-hidden="true">${QUESTIONS.map((q,i)=>`<span class="${i < S.step ? 'done' : i === S.step ? 'now' : ''}"></span>`).join('')}</div>`;
+}
+
+function renderStage(){
+  if (S.step >= RESULT_STEP){ renderResult(); return; }
+  const q = QUESTIONS[S.step], a = S.answers;
+  let body = '';
+  if (q.type === 'count'){
+    body = `
+      <div class="count-wrap">
+        <div class="count-big"><output id="cnt-out">${a.users}</output><span>${a.users === 1 ? 'Person' : 'Personen'}</span></div>
+        <div class="stepper">
+          <button type="button" data-cnt="-1" aria-label="Eine Person weniger">−</button>
+          <input type="range" min="1" max="15" value="${a.users}" id="cnt" aria-label="Anzahl Personen">
+          <button type="button" data-cnt="1" aria-label="Eine Person mehr">+</button>
+        </div>
+        <div class="scale"><span>1</span><span>15</span></div>
+      </div>`;
+  } else {
+    const sel = a[q.id];
+    body = `<div class="opts" role="group" aria-label="${esc(q.title)}">` + q.opts.map(o => {
+      const on = q.type === 'multi' ? (sel||[]).includes(o.v) : sel === o.v;
+      return `<button type="button" class="opt" data-v="${o.v}" aria-pressed="${on}">
+        <span class="opt-ico">${svg(o.i)}</span>
+        <span class="opt-check">${svg('ok',3)}</span>
+        <span class="opt-t">${esc(o.t)}</span>
+        <span class="opt-d">${esc(o.d)}</span>
+      </button>`;
+    }).join('') + `</div>`;
+    if (q.sub && sel === q.sub.when){
+      body += `<div class="sub-pick"><span>${q.sub.label}</span>${q.sub.opts.map(([v,l]) =>
+        `<button type="button" class="chip" data-sub="${v}" aria-pressed="${a[q.sub.id] === v}">${l}</button>`).join('')}</div>`;
+    }
+  }
+  let note = q.note || '';
+  if (q.notes){
+    const sel = a[q.id];
+    const keys = Array.isArray(sel) ? sel : [sel];
+    note = keys.map(k => q.notes[k]).filter(Boolean).join(' ');
+  }
+  stage.innerHTML = `
+    ${renderProgress()}
+    <div class="q-step">Frage ${S.step+1} von ${QUESTIONS.length}</div>
+    <h2 class="q-title">${esc(q.title)}</h2>
+    ${q.help ? `<p class="q-help">${esc(q.help)}</p>` : ''}
+    ${body}
+    ${note ? `<div class="seller-note seller">${svg('info')}<div><b>Für Sie:</b> ${esc(note)}</div></div>` : ''}
+    <div class="q-nav">
+      ${S.step > 0 ? `<button type="button" class="btn btn-ghost" id="q-back">Zurück</button>` : ''}
+      <button type="button" class="btn btn-primary" id="q-next" ${answered(q) ? '' : 'disabled'}>${S.step === QUESTIONS.length-1 ? 'Empfehlung zeigen' : 'Weiter'}</button>
+      ${S.step > 0 && S.step < QUESTIONS.length-1 ? `<button type="button" class="skip" id="q-skip">Direkt zur Empfehlung</button>` : ''}
+    </div>`;
+  bindStage(q);
+}
+
+function bindStage(q){
+  const a = S.answers;
+  const next = document.getElementById('q-next');
+  next.onclick = () => go(S.step + 1);
+  const back = document.getElementById('q-back'); if (back) back.onclick = () => go(S.step - 1);
+  const skip = document.getElementById('q-skip'); if (skip) skip.onclick = () => go(RESULT_STEP);
+
+  if (q.type === 'count'){
+    const r = document.getElementById('cnt'), out = document.getElementById('cnt-out');
+    const set = v => { a.users = Math.max(1, Math.min(15, v)); r.value = a.users; out.textContent = a.users;
+      out.nextElementSibling.textContent = a.users === 1 ? 'Person' : 'Personen'; S.cfg = null; save(); renderReceipt(); };
+    r.oninput = () => set(+r.value);
+    stage.querySelectorAll('[data-cnt]').forEach(b => b.onclick = () => set(a.users + (+b.dataset.cnt)));
+    return;
+  }
+  stage.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    const v = b.dataset.v, o = q.opts.find(x => x.v === v);
+    if (q.type === 'multi'){
+      let cur = (a[q.id] || []).slice();
+      if (cur.includes(v)) cur = cur.filter(x => x !== v);
+      else if (o.excl) cur = [v];
+      else cur = cur.filter(x => !q.opts.find(y => y.v === x).excl).concat(v);
+      a[q.id] = cur;
+    } else {
+      a[q.id] = v;
+    }
+    S.cfg = null; save(); renderStage(); renderReceipt(true, q.id);
+    if (q.type === 'single' && !(q.sub && v === q.sub.when)) setTimeout(() => { if (QUESTIONS[S.step] === q) go(S.step + 1); }, 260);
+  });
+  stage.querySelectorAll('[data-sub]').forEach(b => b.onclick = () => {
+    a[q.sub.id] = b.dataset.sub; save(); renderStage(); renderReceipt();
+  });
+}
+
+function go(step){
+  S.step = Math.max(0, Math.min(RESULT_STEP, step));
+  save(); renderStage(); renderReceipt();
+  const top = document.querySelector('.advise').getBoundingClientRect().top + window.scrollY - 80;
+  if (window.scrollY > top) window.scrollTo({ top, behavior:'smooth' });
+}
+
+/* =====================================================================
+   Rendering: Kassenbon
+   ===================================================================== */
+const RECEIPT_KEYS = [
+  ['users', 'Personen', a => `${a.users}`],
+  ['work',  'Arbeitsweise', a => ({pc:'Am Schreibtisch', mix:'Büro und unterwegs', mobile:'Vor allem mobil'})[a.work]],
+  ['today', 'Heute', a => ({private:'Privat-Postfach', bought:'Office gekauft', m365:'Microsoft 365' + (a.current && PLANS[a.current] ? ' ' + PLANS[a.current].short : ''), google:'Google Workspace'})[a.today]],
+  ['it',    'IT', a => ({self:'Chef selbst', friend:'Bekannter hilft', provider:'IT-Dienstleister'})[a.it]],
+  ['devices','Geräte', a => (a.devices||[]).map(v => ({laptops:'Firmen-PCs', phones:'Firmenhandys', byod:'Privathandys', none:'keine'})[v]).join(', ')],
+  ['data',  'Daten', a => (a.data||[]).map(v => ({sensitive:'sensibel', insurance:'Cyber-Versicherung', incident:'Vorfall gehabt', normal:'normal'})[v]).join(', ')],
+  ['phone', 'Telefonie', a => ({pbx:'Telefonanlage', mobile:'nur Handys', fine:'kein Thema'})[a.phone]],
+  ['ai',    'Schreibarbeit', a => ({lots:'sehr viel', curious:'KI-neugierig', no:'kein Thema'})[a.ai]],
+];
+let lastLines = new Set();
+
+function renderReceipt(animate, freshKey){
+  const a = S.answers, el = document.getElementById('receipt');
+  const lines = RECEIPT_KEYS.filter(([k]) => {
+    const v = a[k]; return Array.isArray(v) ? v.length : (k === 'users' ? S.step > 0 || S.step >= RESULT_STEP : !!v);
+  });
+  const cfg = S.cfg || deriveCfg(a);
+  const c = cost(cfg);
+  const showPrice = S.step >= RESULT_STEP || lines.length >= 3;
+  const now = new Date().toLocaleDateString('de-DE');
+  el.innerHTML = `
+    <div class="rc-head">
+      <img src="${LOGO}" alt="">
+      <strong>Ihr Microsoft-365-Paket</strong>
+      <small>Beratung vom ${now}</small>
+      <div class="rc-cust seller-or-cust"><input id="cust" value="${esc(S.customer)}" placeholder="Firmenname eintragen" maxlength="60" aria-label="Firmenname"></div>
+    </div>
+    ${lines.length ? `<ul class="rc-lines">${lines.map(([k,l,f]) => `<li data-k="${k}" class="${animate && (k === freshKey || !lastLines.has(k)) ? 'fresh' : ''}"><span class="rc-k">${l}</span><span class="rc-v">${esc(f(a)||'')}</span></li>`).join('')}</ul>`
+      : `<div class="rc-empty">Mit jeder Antwort entsteht hier das passende Paket.</div>`}
+    ${showPrice ? `
+      <div class="rc-plan">Empfehlung: ${PLANS[cfg.plan].name}</div>
+      <div class="rc-sum">
+        ${c.lines.map(l => `<div class="rc-row"><span>${l.q}× ${esc(l.k)}</span><span>${eur(l.q*l.p)}</span></div>`).join('')}
+        <div class="rc-row total"><span>Pro Monat</span><span>${eur(c.total)}</span></div>
+        <div class="rc-row"><span>pro Person</span><span>${eur(c.perHead)}</span></div>
+      </div>
+      <div class="rc-foot">Netto, ${BILLING[cfg.billing].label}${c.lineMissing ? '<br>zzgl. Telefonanschluss' : ''}<br>Microsoft-Listenpreise, Stand ${STAND}</div>` : ''}
+  `;
+  lastLines = new Set(lines.map(l => l[0]));
+  const cust = document.getElementById('cust');
+  cust.oninput = () => { S.customer = cust.value; save(); };
+}
+
+/* =====================================================================
+   Rendering: Ergebnis
+   ===================================================================== */
+function renderResult(){
+  const a = S.answers;
+  if (!S.cfg){ S.cfg = deriveCfg(a); save(); }
+  const cfg = S.cfg, rec = analyse(a).plan, plan = cfg.plan, n = cfg.users;
+  const c = cost(cfg);
+  const idx = ORDER.indexOf(plan);
+  const lower = ORDER[idx-1], higher = ORDER[idx+1];
+  const lostGained = (from, to) => {
+    const rows = [];
+    FEATURES.forEach(g => g.items.forEach(f => { if (f.v[to] === 1 && f.v[from] !== 1) rows.push(f.t); }));
+    return rows;
+  };
+  const altCard = (p, dir) => {
+    if (!p) return '';
+    const cc = cost(cfg, p), diff = cc.total - c.total;
+    const list = dir === 'down' ? lostGained(p, plan) : lostGained(plan, p);
+    return `<button type="button" class="alt" data-plan="${p}">
+      <span class="alt-k">${dir === 'down' ? 'Günstiger' : 'Mehr Schutz und Funktionen'}</span>
+      <span class="alt-n">${PLANS[p].name}</span>
+      <span class="alt-d">${dir === 'down' ? 'Es fehlt: ' : 'Zusätzlich: '}${esc(list.slice(0,3).join(', '))}${list.length > 3 ? ' und mehr' : ''}.</span>
+      <span class="alt-p ${dir}">${diff > 0 ? '+' : '−'}${eur(Math.abs(diff))} pro Monat</span>
+    </button>`;
+  };
+  const cur = a.today === 'm365' && PLANS[a.current] ? a.current : null;
+  let delta = '';
+  if (cur){
+    const was = cost(Object.assign({}, cfg, { copilot:0, phone:0, defBiz:false, defSuite:false }), cur).total;
+    const now0 = cost(Object.assign({}, cfg, { copilot:0, phone:0, defBiz:false, defSuite:false })).total;
+    const d = now0 - was;
+    delta = cur === plan
+      ? `<div class="delta">Der Kunde hat bereits <b>${PLANS[cur].name}</b>. Die Empfehlung ergänzt nur Zusätze.</div>`
+      : `<div class="delta">Wechsel von <b>${PLANS[cur].name}</b> auf <b>${PLANS[plan].name}</b>: ${d >= 0 ? 'Mehrkosten' : 'Ersparnis'} von <b>${eur(Math.abs(d))}</b> im Monat für ${n} ${n === 1 ? 'Person' : 'Personen'}, also ${eur(Math.abs(d)/n)} pro Person.</div>`;
+  }
+  const includes = [];
+  FEATURES.forEach(g => g.items.forEach(f => {
+    if (f.v[plan] === 1) includes.push(`<li>${esc(f.t)}</li>`);
+  }));
+  if (cfg.copilot) includes.push(`<li class="addon">KI direkt in Word, Outlook und Teams für ${cfg.copilot} ${cfg.copilot === 1 ? 'Person' : 'Personen'}</li>`);
+  if (cfg.phone) includes.push(`<li class="addon">Telefonanlage in Teams für ${cfg.phone} ${cfg.phone === 1 ? 'Person' : 'Personen'}</li>`);
+  if (cfg.defBiz && plan !== 'bp') includes.push(`<li class="addon">Virenschutz mit Angriffserkennung auf PCs</li>`);
+  if (cfg.defSuite && plan === 'bp') includes.push(`<li class="addon">Erweiterter Schutz für Konten, E-Mails und Cloud-Apps</li>`);
+
+  const hints = sellerHints(a, cfg);
+  const stepper = (key, max, unit) => `
+    <div class="mini-step">
+      <button type="button" data-step="${key}" data-d="-1" aria-label="weniger">−</button>
+      <output>${cfg[key]}</output>
+      <button type="button" data-step="${key}" data-d="1" aria-label="mehr">+</button>
+      <small>von ${max} ${unit}</small>
+    </div>`;
+
+  stage.innerHTML = `
+    ${renderProgress().replace(/class=""/g,'class="done"').replace('class="now"','class="done"')}
+    <div class="result-head">
+      <div>
+        <div class="result-kicker">${plan === rec ? `Unsere Empfehlung für ${n} ${n === 1 ? 'Person' : 'Personen'}` : `Gewählt für ${n} ${n === 1 ? 'Person' : 'Personen'}, empfohlen wäre ${PLANS[rec].short}`}</div>
+        <h2 class="result-name">${PLANS[plan].name}</h2>
+        <div class="result-claim">${PLANS[plan].claim}</div>
+      </div>
+      <div class="plan-switch" role="group" aria-label="Paket wählen">
+        ${ORDER.map(p => `<button type="button" data-plan="${p}" aria-pressed="${p === plan}">${PLANS[p].short}${p === rec ? '<span class="rec" title="Empfehlung"></span>' : ''}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="say">
+      <h3>Warum dieses Paket zu Ihnen passt</h3>
+      <ul>${reasons(a, cfg).map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+    </div>
+    ${delta}
+
+    ${hints.length ? `<div class="seller"><h3 class="section-h">Hinweise für Sie</h3><div class="hints">${hints.map(([t,x]) => `<div class="hint ${t === 'info' ? 'info' : ''}">${svg(t === 'info' ? 'info' : 'warn')}<span>${esc(x)}</span></div>`).join('')}</div></div>` : ''}
+
+    <h3 class="section-h">Paket anpassen</h3>
+    <div class="config">
+      <div class="cfg on">
+        <div class="cfg-top"><div><div class="cfg-t">Personen</div><div class="cfg-d">Alle mit eigener E-Mail-Adresse</div></div></div>
+        ${stepper('users', 15, 'max.')}
+      </div>
+      <div class="cfg ${cfg.copilot ? 'on' : ''}">
+        <div class="cfg-top"><div><div class="cfg-t">KI-Assistent Copilot</div><div class="cfg-d">Für alle, die viel schreiben</div></div></div>
+        ${stepper('copilot', n, 'Personen')}
+        <div class="cfg-p">${plan === 'bb' ? `${eur(P('cb'))} pro Person zusätzlich` : `im Bündel ${eur(P(plan === 'bs' ? 'bsCB' : 'bpCB') - P(plan))} Aufpreis pro Person`}</div>
+      </div>
+      <div class="cfg ${cfg.phone ? 'on' : ''}">
+        <div class="cfg-top"><div><div class="cfg-t">Telefonie in Teams</div><div class="cfg-d">Telefonanlage ersetzen</div></div></div>
+        ${stepper('phone', n, 'Personen')}
+        <div class="cfg-p">${eur(P('phone'))} pro Person${P('line') > 0 ? `, plus ${eur(P('line'))} Anschluss` : ', zzgl. Telekom-Anschluss'}</div>
+      </div>
+      ${plan !== 'bp' ? `
+      <div class="cfg ${cfg.defBiz ? 'on' : ''}">
+        <div class="cfg-top"><div><div class="cfg-t">Virenschutz für PCs</div><div class="cfg-d">Defender for Business, stoppt Erpressungssoftware</div></div>
+        <label class="switch"><input type="checkbox" data-tog="defBiz" ${cfg.defBiz ? 'checked' : ''} aria-label="Virenschutz für PCs"><span></span></label></div>
+        <div class="cfg-p">${eur(P('defBiz'))} pro Person</div>
+      </div>` : `
+      <div class="cfg ${cfg.defSuite ? 'on' : ''}">
+        <div class="cfg-top"><div><div class="cfg-t">Extra-Schutz</div><div class="cfg-d">Defender Suite: Schutz für Konten, E-Mails und Cloud-Apps auf Konzernniveau</div></div>
+        <label class="switch"><input type="checkbox" data-tog="defSuite" ${cfg.defSuite ? 'checked' : ''} aria-label="Extra-Schutz"><span></span></label></div>
+        <div class="cfg-p">${eur(P('defSuite'))} pro Person, für sehr sensible Daten</div>
+      </div>`}
+    </div>
+
+    <h3 class="section-h">Vertragsart</h3>
+    <div class="billing" role="group" aria-label="Vertragsart">
+      ${Object.entries(BILLING).map(([k,b]) => `<button type="button" class="chip" data-bill="${k}" aria-pressed="${cfg.billing === k}">${b.label}${b.note ? ' (' + b.note + ')' : ''}</button>`).join('')}
+    </div>
+
+    ${(lower || higher) ? `<h3 class="section-h">Alternativen</h3><div class="alts">${altCard(lower,'down')}${altCard(higher,'up')}</div>` : ''}
+
+    <h3 class="section-h">Das ist enthalten</h3>
+    <ul class="includes">${includes.join('')}</ul>
+
+    <div class="q-nav">
+      <button type="button" class="btn btn-ghost" id="q-back">Antworten ändern</button>
+      <button type="button" class="btn btn-primary" id="r-print" style="margin-left:auto">Zusammenfassung als PDF</button>
+    </div>`;
+
+  stage.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => { cfg.plan = b.dataset.plan; save(); renderStage(); renderReceipt(); });
+  stage.querySelectorAll('[data-step]').forEach(b => b.onclick = () => {
+    const k = b.dataset.step, d = +b.dataset.d;
+    const max = k === 'users' ? 15 : cfg.users, min = k === 'users' ? 1 : 0;
+    cfg[k] = Math.max(min, Math.min(max, cfg[k] + d));
+    if (k === 'users'){ cfg.copilot = Math.min(cfg.copilot, cfg.users); cfg.phone = Math.min(cfg.phone, cfg.users); S.answers.users = cfg.users; }
+    save(); renderStage(); renderReceipt();
+  });
+  stage.querySelectorAll('[data-tog]').forEach(i => i.onchange = () => { cfg[i.dataset.tog] = i.checked; save(); renderStage(); renderReceipt(); });
+  stage.querySelectorAll('[data-bill]').forEach(b => b.onclick = () => { cfg.billing = b.dataset.bill; save(); renderStage(); renderReceipt(); });
+  document.getElementById('q-back').onclick = () => go(QUESTIONS.length - 1);
+  document.getElementById('r-print').onclick = printSummary;
+}
+
+/* =====================================================================
+   Vergleich
+   ===================================================================== */
+function renderCompare(){
+  const rec = S.step >= RESULT_STEP && S.cfg ? S.cfg.plan : (S.answers.work ? analyse(S.answers).plan : null);
+  const cell = v => {
+    if (v === 1) return `<span class="yes" title="enthalten">${svg('ok',3)}</span><span class="sr">enthalten</span>`;
+    if (typeof v === 'string' && v.startsWith('add:')) return `<span class="add">+ ${eur(P(v.slice(4)))}</span><span class="sr">zubuchbar</span>`;
+    return `<span class="no">—</span><span class="sr">nicht enthalten</span>`;
+  };
+  const head = `<thead><tr><th><span class="sr">Funktion</span></th>${ORDER.map(p => `
+    <th class="plan-col ${p === rec ? 'hl' : ''}">
+      ${p === rec ? '<span class="ph-tag">Empfehlung</span>' : ''}
+      <div class="ph-name">${PLANS[p].short}</div>
+      <div class="ph-claim">${PLANS[p].claim}</div>
+      <div class="ph-price">${eur(P(p))}<small>pro Person und Monat</small></div>
+    </th>`).join('')}</tr></thead>`;
+  const body = '<tbody>' + FEATURES.map(g =>
+    `<tr class="grp-row"><td colspan="4">${esc(g.grp)}</td></tr>` + g.items.map(f => `
+      <tr><td><div class="f-t">${esc(f.t)}</div><div class="f-ex">${esc(f.ex)}</div><div class="f-tech">${esc(f.tech)}</div></td>
+      ${ORDER.map(p => `<td class="cell ${p === rec ? 'hl' : ''}">${cell(f.v[p])}</td>`).join('')}</tr>`).join('')
+  ).join('') + '</tbody>';
+  document.getElementById('cmp-table').innerHTML = head + body;
+}
+
+function renderExpert(){
+  const mark = v => v ? `<span class="yes">${svg('ok',3)}</span>` : `<span class="no">—</span>`;
+  document.getElementById('expert-body').innerHTML =
+    `<div class="ex-row head"><span>Komponente</span><span class="c">Basic</span><span class="c">Standard</span><span class="c">Premium</span></div>` +
+    DETAIL.map(c => `<div class="ex-cat"><h4>${esc(c.cat)}</h4>${c.items.map(i => `
+      <div class="ex-row"><div><div class="ex-n">${esc(i.n)}${i.u ? `<a href="${esc(i.u)}" target="_blank" rel="noopener">Doku</a>` : ''}</div><div class="ex-d">${esc(i.d)}</div></div>
+      ${i.addon && !i.bb && !i.bs && !i.bp ? `<span class="c" style="grid-column:span 3"><span class="add">zubuchbar</span></span>` : `<span class="c">${mark(i.bb)}</span><span class="c">${mark(i.bs)}</span><span class="c">${mark(i.bp)}</span>`}
+      </div>`).join('')}</div>`).join('');
+}
+
+/* =====================================================================
+   Spickzettel
+   ===================================================================== */
+function renderCheat(){
+  document.getElementById('objections').innerHTML = OBJECTIONS.map((o,i) => `
+    <details class="obj" ${i === 0 ? 'open' : ''}><summary>${esc(o.q)}</summary>
+      <div class="obj-a">${o.a.map(p => `<p>${esc(p)}</p>`).join('')}<p class="try">${esc(o.ask)}</p></div>
+    </details>`).join('');
+  document.getElementById('facts').innerHTML = FACTS.map(([k,v]) => `<li><b>${esc(k)}</b><span>${esc(v)}</span></li>`).join('');
+  document.getElementById('glossary').innerHTML = GLOSSARY.map(([k,v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
+}
+
+/* =====================================================================
+   PDF / Druck
+   ===================================================================== */
+function printSummary(){
+  const a = S.answers;
+  if (!S.cfg) S.cfg = deriveCfg(a);
+  const cfg = S.cfg, c = cost(cfg), plan = cfg.plan;
+  const inc = [];
+  FEATURES.forEach(g => g.items.forEach(f => { if (f.v[plan] === 1) inc.push(f.t); }));
+  const date = new Date().toLocaleDateString('de-DE');
+  document.getElementById('print-sheet').innerHTML = `
+    <div class="ps-head">
+      <div style="display:flex;gap:12px;align-items:center"><img src="${LOGO}" alt="">
+        <div><h1>Ihr Microsoft-365-Paket</h1><p>${S.customer ? esc(S.customer) : 'Unverbindliche Übersicht'}</p></div></div>
+      <div class="ps-meta">Beratung vom ${date}<br>${cfg.users} ${cfg.users === 1 ? 'Person' : 'Personen'}</div>
+    </div>
+    <div class="ps-plan">Microsoft 365 ${PLANS[plan].name}</div>
+    <div class="ps-claim">${PLANS[plan].claim}</div>
+    <h2>Warum dieses Paket</h2>
+    <ul>${reasons(a, cfg).map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+    <h2>Kosten pro Monat</h2>
+    <table class="ps-table">
+      <tr><th>Position</th><th>Anzahl</th><th>Einzelpreis</th><th>Summe</th></tr>
+      ${c.lines.map(l => `<tr><td>${esc(l.k)}</td><td>${l.q}</td><td>${eur(l.p)}</td><td>${eur(l.q*l.p)}</td></tr>`).join('')}
+      <tr class="sum"><td colspan="3">Gesamt pro Monat, netto</td><td>${eur(c.total)}</td></tr>
+    </table>
+    <p style="margin:6px 0 0;color:#5a5a64">${BILLING[cfg.billing].label}. Das sind ${eur(c.perHead)} pro Person und ${eur(c.total*12, 0)} im Jahr.${c.lineMissing ? ' Zuzüglich Telefonanschluss.' : ''}</p>
+    <h2>Das ist enthalten</h2>
+    <ul class="ps-cols">${inc.map(t => `<li>${esc(t)}</li>`).join('')}${cfg.copilot ? `<li>KI-Assistent in Word, Outlook und Teams (${cfg.copilot}×)</li>` : ''}${cfg.phone ? `<li>Telefonanlage in Teams (${cfg.phone}×)</li>` : ''}</ul>
+    <div class="ps-note">Unverbindliche Übersicht auf Basis der Microsoft-Listenpreise (netto, Stand ${STAND}). Das verbindliche Angebot erhalten Sie von Ihrer Telekom-Ansprechperson. Es gelten die Microsoft-Lizenzbedingungen.</div>`;
+  const prev = document.title;
+  document.title = `Microsoft 365 ${PLANS[plan].short}${S.customer ? ' – ' + S.customer : ''}`;
+  window.print();
+  setTimeout(() => { document.title = prev; }, 500);
+}
+
+/* =====================================================================
+   Preise-Dialog, Tabs, Modus
+   ===================================================================== */
+function renderPrices(){
+  document.getElementById('price-list').innerHTML = Object.entries(PRICE_DEFAULTS).map(([k,d]) => `
+    <div class="price-row ${priceOverrides[k] != null ? 'changed' : ''}">
+      <label for="pr-${k}">${esc(d.label)}${d.note ? `<small>${esc(d.note)}</small>` : ''}</label>
+      <input id="pr-${k}" data-pk="${k}" type="number" step="0.01" min="0" inputmode="decimal" value="${P(k).toFixed(2)}">
+    </div>`).join('');
+  document.querySelectorAll('[data-pk]').forEach(i => i.oninput = () => {
+    const k = i.dataset.pk, v = parseFloat(String(i.value).replace(',','.'));
+    if (isNaN(v) || Math.abs(v - PRICE_DEFAULTS[k].v) < 0.001) delete priceOverrides[k]; else priceOverrides[k] = v;
+    i.closest('.price-row').classList.toggle('changed', priceOverrides[k] != null);
+    store.set(PRICE_STORE, priceOverrides); refreshAll();
+  });
+}
+document.getElementById('btn-prices').onclick = () => { renderPrices(); document.getElementById('dlg-prices').showModal(); };
+document.getElementById('price-reset').onclick = () => { priceOverrides = {}; store.del(PRICE_STORE); renderPrices(); refreshAll(); toast('Listenpreise wiederhergestellt'); };
+
+document.querySelectorAll('[data-tab]').forEach(t => t.onclick = () => {
+  document.querySelectorAll('[data-tab]').forEach(x => x.setAttribute('aria-selected', x === t));
+  document.querySelectorAll('.view').forEach(v => v.hidden = v.id !== 'view-' + t.dataset.tab);
+  if (t.dataset.tab === 'compare') renderCompare();
+  window.scrollTo({ top:0 });
+});
+
+const custBtn = document.getElementById('btn-customer');
+const setCustomer = on => {
+  document.body.classList.toggle('customer', on); custBtn.setAttribute('aria-pressed', on);
+  custBtn.querySelector('.lbl').textContent = on ? 'Verkäuferansicht' : 'Kundenansicht';
+  store.set('kmu_berater_mode', on);
+};
+custBtn.onclick = () => { const on = !document.body.classList.contains('customer'); setCustomer(on); toast(on ? 'Kundenansicht: Verkäufer-Hinweise ausgeblendet' : 'Verkäuferansicht: alle Hinweise sichtbar'); };
+setCustomer(!!store.get('kmu_berater_mode'));
+
+document.getElementById('tech-toggle').onchange = e => document.body.classList.toggle('tech', e.target.checked);
+document.getElementById('btn-print').onclick = printSummary;
+function resetAll(){
+  const dirty = S.step > 0 || S.customer || S.cfg;
+  const backup = JSON.parse(JSON.stringify(S));
+  S = freshState(); save(); lastLines = new Set();
+  const tech = document.getElementById('tech-toggle'); tech.checked = false; document.body.classList.remove('tech');
+  document.getElementById('expert').open = false;
+  document.querySelectorAll('.obj').forEach((d,i) => d.open = i === 0);
+  document.querySelector('[data-tab="advise"]').click();
+  renderStage(); renderReceipt(); renderCompare();
+  toast('Alles zurückgesetzt', dirty ? { label:'Rückgängig', run:() => {
+    S = backup; save(); lastLines = new Set(); renderStage(); renderReceipt(); renderCompare(); toast('Wiederhergestellt');
+  }} : null);
+}
+document.getElementById('btn-reset').onclick = resetAll;
+document.getElementById('btn-new').onclick = resetAll;
+
+let toastT;
+function toast(msg, action){
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span>${esc(msg)}</span>${action ? `<button type="button" id="toast-undo">${esc(action.label)}</button>` : ''}`;
+  if (action) document.getElementById('toast-undo').onclick = () => { clearTimeout(toastT); t.classList.remove('show'); action.run(); };
+  t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), action ? 7000 : 2400);
+}
+function refreshAll(){ renderStage(); renderReceipt(); renderCompare(); }
+
+renderStage(); renderReceipt(); renderCompare(); renderExpert(); renderCheat();
+</script>
+</body>
+</html>
